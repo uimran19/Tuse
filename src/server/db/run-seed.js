@@ -1,1 +1,1 @@
-export default runSeed () {}
+export default function runSeed () {}
