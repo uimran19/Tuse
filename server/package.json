@@ -4,5 +4,8 @@
     "express": "^5.1.0",
     "format": "^0.2.2",
     "pg": "^8.16.3"
+  },
+  "scripts": {
+    "setup-dbs" : "psql -f db/setup-dbs.sql"
   }
 }

@@ -1,2 +1,3 @@
-import runSeed from "../src/server/db/seeds/run-seed";
-import seed from "../src/server/db/seeds/seed";
+const db = require("../db/connection")
+const runSeed = require("../src/server/db/seeds/run-seed");
+const seed = require("../src/server/db/seeds/seed");

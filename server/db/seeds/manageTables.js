@@ -1,11 +1,11 @@
-import db from "../connection";
+const db = require("../connection");
 
-export function dropTable() {
+function dropTable() {
   return db.query(`
         DROP TABLE IF EXISTS artworks;`);
 }
 
-export function createTable() {
+function createTable() {
   return db.query(`
         CREATE TABLE artworks (
         artwork_id INT PRIMARY KEY,
@@ -13,4 +13,4 @@ export function createTable() {
         );`);
 }
 
-// export default { dropTable, createTable };
+module.exports = {dropTable, createTable}

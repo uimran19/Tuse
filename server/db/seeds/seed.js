@@ -1,6 +1,5 @@
 // import db from "../connection";
-import { dropTable, createTable } from "./manageTables";
-// const { dropTable, createTable } = require("./manageTables");
+const { dropTable, createTable } = require("./manageTables");
 
 function getImageIds() {
   const query = `https://api.artic.edu/api/v1/artworks/search?fields=id,title,artist_title,has_not_been_viewed_much,description,short_description,date_start,date_end,place_of_origin,artist_display,style_title,classification_title,technique_titles,image_id&query[term][is_public_domain]=true&limit=100`;
@@ -36,7 +35,7 @@ function getImageIds() {
   // });
 }
 
-export default async function seed() {
+ async function seed() {
   try {
     dropTable();
     createTable();
@@ -47,4 +46,5 @@ export default async function seed() {
 
 seed();
 
+module.exports = seed
 //
