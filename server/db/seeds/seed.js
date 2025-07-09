@@ -35,14 +35,18 @@ function getImageIds() {
   // });
 }
 
- async function seed() {
-  try {
-    dropTable();
-    createTable();
-
-    const imageIds = await getImageIds();
-  } catch (err) {}
+function seed() {
+  dropTable()
+  createTable()
 }
+//  async function seed() {
+//   try {
+//     dropTable();
+//     createTable();
+
+//     const imageIds = await getImageIds();
+//   } catch (err) {}
+// }
 
 seed();
 

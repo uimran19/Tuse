@@ -6,6 +6,10 @@
     "pg": "^8.16.3"
   },
   "scripts": {
-    "setup-dbs" : "psql -f db/setup-dbs.sql"
+    "setup-dbs": "psql -f db/setup-dbs.sql",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

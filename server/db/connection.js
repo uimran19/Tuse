@@ -14,7 +14,7 @@ if (ENV === "production") {
   config.connectionString = process.env.DATABASE_URL;
   config.max = 2;
   console.log(`Connected to ${process.env.DATABASE_URL}`);
-} else if (ENV === "development") {
+} else if (ENV === "development" || ENV === "test") {
   console.log(`Connected to ${process.env.PGDATABASE}`);
 }
 
