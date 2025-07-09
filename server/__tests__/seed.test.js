@@ -2,7 +2,7 @@ const db = require("../db/connection");
 const runSeed = require("../db/seeds/run-seed");
 const seed = require("../db/seeds/seed");
 
-// beforeEach(() => seed());
+beforeAll(() => seed());
 afterAll(() => db.end());
 
 describe("seed", () => {
@@ -38,11 +38,11 @@ describe("seed", () => {
       return db
         .query(
           `SELECT column_name
-                    FROM information_schema.table_constraints AS tc
-                    JOIN information_schema.key_column_usage AS kcu
-                    ON tc.constraint_name = kcu.constraint_name
-                    WHERE tc.constraint_type = 'PRIMARY KEY'
-                    AND tc.table_name = 'artworks';`
+            FROM information_schema.table_constraints AS tc
+            JOIN information_schema.key_column_usage AS kcu
+            ON tc.constraint_name = kcu.constraint_name
+            WHERE tc.constraint_type = 'PRIMARY KEY'
+            AND tc.table_name = 'artworks';`
         )
         .then(({ rows: [{ column_name }] }) => {
           expect(column_name).toBe("artwork_id");
@@ -52,9 +52,9 @@ describe("seed", () => {
       return db
         .query(
           `SELECT *
-                    FROM information_schema.columns
-                    WHERE table_name = 'artworks'
-                    AND column_name = 'image_id';`
+            FROM information_schema.columns
+            WHERE table_name = 'artworks'
+            AND column_name = 'image_id';`
         )
         .then(({ rows: [column] }) => {
           expect(column.column_name).toBe("image_id");
