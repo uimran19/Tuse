@@ -1,5 +1,6 @@
-// import db from "../connection";
-const { dropTable, createTable } = require("./manageTables");
+const db = require("../connection");
+const { createTable } = require("./manageTables");
+const format = require("pg-format");
 
 function getImageIds() {
   const query = `https://api.artic.edu/api/v1/artworks/search?fields=id,title,artist_title,has_not_been_viewed_much,description,short_description,date_start,date_end,place_of_origin,artist_display,style_title,classification_title,technique_titles,image_id&query[term][is_public_domain]=true&limit=100`;
@@ -26,29 +27,34 @@ function getImageIds() {
           classification_title === "triptych"
         );
       });
-      return paintings.map(({ id, image_id }) => {
-        return { id, image_id };
+      const uniquePaintings = [...new Set(paintings)];
+      return uniquePaintings.map(({ id, image_id }) => {
+        return { artwork_id: id, image_id };
       });
     });
-  // .then((res) => {
-  //   console.log(res);
-  // });
+}
+
+function insertArtworks(artworks) {
+  const formattedArtworks = artworks.map(({ artwork_id, image_id }) => {
+    return [artwork_id, image_id];
+  });
+
+  const artworksInsertString = format(
+    `INSERT INTO artworks(artwork_id, image_id) VALUES %L;`,
+    formattedArtworks
+  );
+
+  return db.query(artworksInsertString);
 }
 
 function seed() {
-  dropTable()
-  createTable()
+  createTable();
+  return getImageIds().then((artworks) => {
+    insertArtworks(artworks);
+  });
 }
-//  async function seed() {
-//   try {
-//     dropTable();
-//     createTable();
-
-//     const imageIds = await getImageIds();
-//   } catch (err) {}
-// }
 
 seed();
 
-module.exports = seed
+module.exports = seed;
 //
