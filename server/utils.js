@@ -3,16 +3,26 @@ function getNext365Dates() {
   let dates = [];
   let timestampStep = currentTimestamp;
 
-  for (let i = 0; i < 365; i++) {
+  for (let i = 1; i <= 365; i++) {
     let date = new Date(timestampStep);
 
-    dates.push(
-      `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`
-    );
+    dates.push([
+      i,
+      `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+    ]);
 
     timestampStep += 1000 * 60 * 60 * 24;
   }
   return dates;
 }
 
-module.exports = { getNext365Dates };
+function getTodaysDate() {
+  const currentTimestamp = Date.now();
+  const date = new Date(currentTimestamp);
+  const formattedDate = `${date.getFullYear()}-${
+    date.getMonth() + 1
+  }-${date.getDate()}`;
+  return formattedDate;
+}
+
+module.exports = { getNext365Dates, getTodaysDate };

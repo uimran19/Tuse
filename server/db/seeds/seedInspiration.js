@@ -5,16 +5,17 @@ const format = require("pg-format");
 function seedInspiration() {
   const dates = getNext365Dates();
 
-  const formattedDates = dates.map((date) => {
+  const formattedDates = dates.map(([id, date]) => {
     return format(
       `UPDATE artworks
         SET daily_inspiration_date = %L
-        WHERE id = 1;`,
-      [date]
+        WHERE id = %L;`,
+      [date],
+      [id]
     );
   });
 
-  console.log(formattedDates);
+  return db.query(formattedDates.join(""));
 }
 
 seedInspiration();
