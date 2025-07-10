@@ -16,7 +16,8 @@
     "pg-format": "^1.0.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-konva": "^19.0.7"
+    "react-konva": "^19.0.7",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
