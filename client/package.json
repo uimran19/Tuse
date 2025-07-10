@@ -16,6 +16,10 @@
     "pg-format": "^1.0.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+<<<<<<< HEAD:package.json
+    "react-icons": "^5.5.0",
+=======
+>>>>>>> main:client/package.json
     "react-konva": "^19.0.7",
     "socket.io-client": "^4.8.1"
   },
