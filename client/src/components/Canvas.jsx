@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
 import { socket } from "../socket";
+import Toolbar from "./Toolbar";
 
 const Canvas = () => {
   const [tool, setTool] = React.useState("pen");
@@ -11,11 +12,19 @@ const Canvas = () => {
   let socketIdRef = useRef("");
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
+  const [strokeWidth, setStrokeWidth] = useState(5);
+  const [colour, setColour] = useState("#000000");
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
-    setLiveLine({ tool, points: [pos.x, pos.y], socketIdRef });
+    setLiveLine({
+      tool,
+      points: [pos.x, pos.y],
+      socketIdRef,
+      strokeWidth,
+      colour,
+    });
   };
 
   useEffect(() => {
@@ -102,6 +111,12 @@ const Canvas = () => {
         <option value="pen">Pen</option>
         <option value="eraser">Eraser</option>
       </select>
+      <Toolbar
+        tool={tool}
+        setTool={setTool}
+        setStrokeWidth={setStrokeWidth}
+        setColour={setColour}
+      />
       <Stage
         width={window.innerWidth}
         height={window.innerHeight}
@@ -121,13 +136,12 @@ const Canvas = () => {
         }}
       >
         <Layer>
-          <Text text="Just start drawing" x={5} y={30} />
           {lines.map((line, i) => (
             <Line
               key={i}
               points={line.points}
-              stroke="#df4b26"
-              strokeWidth={5}
+              stroke={line.colour}
+              strokeWidth={line.strokeWidth}
               tension={0.5}
               lineCap="round"
               lineJoin="round"
@@ -139,8 +153,8 @@ const Canvas = () => {
           {liveLine && (
             <Line
               points={liveLine.points}
-              stroke="#df4b26"
-              strokeWidth={5}
+              stroke={liveLine.colour}
+              strokeWidth={liveLine.strokeWidth}
               tension={0.5}
               lineCap="round"
               lineJoin="round"
