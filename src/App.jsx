@@ -1,13 +1,18 @@
-import { useState } from 'react'
 import './App.css'
 import Canvas from './components/Canvas'
+import io from 'socket.io-client'
 
+const socket = io.connect('http://localhost:3001')
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  function sendMessage() {
+    // socket.emit()
+  }
 
   return (
     <>
+    {/* <button onClick={sendMessage}>hi</button> */}
       <Canvas />
     </>
   )

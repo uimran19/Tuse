@@ -39,6 +39,11 @@ h1 {
   background-color: white;
 }
 
+.toolbar {
+  background-color: #ffffffd6;
+  border: 1px solid rgba(0, 0, 0, 0.128);
+  
+}
 
 button {
   border-radius: 8px;
@@ -47,16 +52,25 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: white;
   cursor: pointer;
   transition: border-color 0.25s;
+  color: black;
 }
-button:hover {
-  border-color: #646cff;
+button:hover:not(.active) {
+  background-color: #f9e5e5;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.active {
+  background-color: #FFC9C9;
+}
+
+button.undoRedoButtons:active {
+  background-color: #FFC9C9;
+}
+
+.paletteDropdown {
+  background-color: white;
+  border: 1px solid #ccc;
 }
 
 @media (prefers-color-scheme: light) {
@@ -66,8 +80,5 @@ button:focus-visible {
   }
   a:hover {
     color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
   }
 }
