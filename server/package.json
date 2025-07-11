@@ -1,12 +1,18 @@
 {
+  "main": "listen.js",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^17.1.0",
     "express": "^5.1.0",
     "pg": "^8.16.3",
     "pg-format": "^1.0.4"
   },
   "scripts": {
+    "start": "node listen.js",
     "setup-dbs": "psql -f db/setup-dbs.sql",
+    "seed": "node db/seeds/run-seed",
+    "seed-inspiration": "node db/seeds/seedInspiration",
+    "seed-prod": "NODE_ENV=production npm run seed",
     "test": "jest --runInBand"
   },
   "devDependencies": {
