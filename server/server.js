@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
   liveUsers.add(socket.id);
 
   socket.on("drawing", (data) => {
-    if (!data) return;
+    if (!data || !data.canvas_id || !roomExists(data.canvas_id)) return;
 
     knownCanvases[data.canvas_id].push(data);
     io.to(data.canvas_id).emit("drawing", data);
