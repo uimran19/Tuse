@@ -29,7 +29,7 @@ io.on("connection", (socket) => {
   console.log("a user connected");
 
   socket.on("joinRoomRequest", (roomId) => {
-    console.log("connected", roomId, knownRooms);
+    console.log("User connected to ", roomId, "Known rooms: ", knownRooms);
     if (roomExists(roomId)) {
       if (!(roomId in knownCanvases)) {
         knownCanvases[roomId] = [];
@@ -60,17 +60,9 @@ io.on("connection", (socket) => {
     console.log("Server response: " + testMsg);
   });
 
-  // socket.on("drawing", (data) => {
-  //   linesHistory.push(data);
-  //   io.emit("drawing", linesHistory);
-  // });
-
-  //try emitting just the new line (amended receptio on line 38 of the KonvaCanvas component)
-
   socket.on("drawing", (data) => {
     if (!data) return;
 
-    // console.log(knownCanvases[data.canvas_id]);
     knownCanvases[data.canvas_id].push(data);
     io.to(data.canvas_id).emit("drawing", data);
   });

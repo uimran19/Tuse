@@ -32,7 +32,6 @@ const Canvas = () => {
 
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
-      console.log(linesHistory, "<-- lineshistory");
       setLines(linesHistory);
     });
 
@@ -49,9 +48,7 @@ const Canvas = () => {
     // });
 
     socket.on("drawing", (newLine) => {
-      console.log(newLine);
       setLines((previous) => [...previous, newLine]);
-      console.log(lines);
     });
 
     socket.on("connect", () => {
@@ -93,7 +90,6 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
     socket.emit("drawing", liveLine);
-    console.log(lines);
 
     //prevents flickering of liveLine
     requestAnimationFrame(() => {
