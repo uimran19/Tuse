@@ -1,16 +1,19 @@
-import db from "../connection";
+const db = require("../connection");
 
-export function dropTable() {
+function dropTable() {
   return db.query(`
-        DROP TABLE IF EXISTS artworks;`);
+        `);
 }
 
-export function createTable() {
+function createTable() {
   return db.query(`
+        DROP TABLE IF EXISTS artworks;
         CREATE TABLE artworks (
-        artwork_id INT PRIMARY KEY,
-        image_id VARCHAR(50) NOT NULL
+        id SERIAL PRIMARY KEY,
+        artwork_id INT UNIQUE NOT NULL,
+        image_id VARCHAR(50) NOT NULL,
+        daily_inspiration_date VARCHAR(10)
         );`);
 }
 
-// export default { dropTable, createTable };
+module.exports = { dropTable, createTable };

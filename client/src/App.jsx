@@ -3,6 +3,7 @@ import "./App.css";
 import Canvas from "./components/Canvas";
 import Home from "./components/Home";
 import { Routes, Route } from "react-router-dom";
+import HomePage from "./components/HomePage";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -10,10 +11,13 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home />}></Route>
+ 
+        <Route path="/home" element={<Home />}></Route>
         <Route path="/canvas/:canvas_id" element={<Canvas />}></Route>
-        {/* This is temporary */}
-        {/* <Route path="/canvas" element={<Canvas />}></Route> */}
+
+        <Route path="/" element={<HomePage />} />
+        
+
       </Routes>
     </>
   );
