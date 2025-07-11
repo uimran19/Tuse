@@ -161,7 +161,8 @@ const Canvas = () => {
     return (
       <>
         <div>Room not found!</div>
-        <a href="http://localhost:5173/">Return home</a>
+        {/* <a href="http://localhost:5173/">Return home</a> */}
+        <Link to={`/home`}>Return home</Link>;
       </>
     );
 };
