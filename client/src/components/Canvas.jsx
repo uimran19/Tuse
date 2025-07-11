@@ -43,10 +43,6 @@ const Canvas = () => {
       console.log(testMsg);
     });
 
-    // socket.on("drawing", (linesHistory) => {
-    //   setLines(linesHistory);
-    // });
-
     socket.on("drawing", (newLine) => {
       setLines((previous) => [...previous, newLine]);
     });
@@ -54,7 +50,7 @@ const Canvas = () => {
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
       socket.emit("joinRoomRequest", canvas_id);
-      socket.emit("get-initial-canvas", canvas_id); //conditional on handshake
+      socket.emit("get-initial-canvas", canvas_id);
     });
 
     socket.on("roomJoined", (roomId) => {
@@ -91,7 +87,6 @@ const Canvas = () => {
     isDrawing.current = false;
     socket.emit("drawing", liveLine);
 
-    //prevents flickering of liveLine
     requestAnimationFrame(() => {
       setLiveLine(null);
     });
@@ -99,7 +94,7 @@ const Canvas = () => {
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
-      pixelRatio: 2, // double resolution
+      pixelRatio: 2,
     });
 
     const link = document.createElement("a");
@@ -126,15 +121,12 @@ const Canvas = () => {
         onMouseDown={handleMouseDown}
         onMousemove={handleMouseMove}
         onMouseup={handleMouseUp}
-        // onMouseOut={handleMouseUp}
         onTouchStart={handleMouseDown}
         onTouchMove={handleMouseMove}
         onTouchEnd={handleMouseUp}
         ref={stageRef}
         onClick={(e) => {
           const stage = e.target.getStage();
-
-          //   console.log(stage);
           setStoredCanvas(stage);
         }}
       >
