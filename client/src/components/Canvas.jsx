@@ -1,21 +1,21 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Stage, Layer, Rect, Circle, Line, Text } from 'react-konva';
-import { socket } from '../socket';
-import Toolbar from './Toolbar';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from "react";
+import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
+import { socket } from "../socket";
+import Toolbar from "./Toolbar";
+import { useParams } from "react-router-dom";
 
 const Canvas = () => {
   const { canvas_id } = useParams();
-  const [tool, setTool] = React.useState('pen');
+  const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
   const [liveLine, setLiveLine] = React.useState(null);
   const isDrawing = React.useRef(false);
   const [storedCanvas, setStoredCanvas] = React.useState(null);
-  let socketIdRef = useRef('');
+  let socketIdRef = useRef("");
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
   const [strokeWidth, setStrokeWidth] = useState(5);
-  const [colour, setColour] = useState('#000000');
+  const [colour, setColour] = useState("#000000");
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
@@ -31,15 +31,16 @@ const Canvas = () => {
   };
 
   useEffect(() => {
-    socket.on('initial-canvas', (linesHistory) => {
+    socket.on("initial-canvas", (linesHistory) => {
+      console.log(linesHistory, "<-- lineshistory");
       setLines(linesHistory);
     });
 
-    socket.on('live-users', (currUsers) => {
+    socket.on("live-users", (currUsers) => {
       setLiveUsers(currUsers);
     });
 
-    socket.on('test message received', (testMsg) => {
+    socket.on("test message received", (testMsg) => {
       console.log(testMsg);
     });
 
@@ -47,30 +48,32 @@ const Canvas = () => {
     //   setLines(linesHistory);
     // });
 
-    socket.on('drawing', (newLine) => {
+    socket.on("drawing", (newLine) => {
+      console.log(newLine);
       setLines((previous) => [...previous, newLine]);
+      console.log(lines);
     });
 
-    socket.on('connect', () => {
+    socket.on("connect", () => {
       socketIdRef.current = socket.id;
-      socket.emit('joinRoomRequest', canvas_id);
-      socket.emit('get-initial-canvas'); //conditional on handshake
+      socket.emit("joinRoomRequest", canvas_id);
+      socket.emit("get-initial-canvas", canvas_id); //conditional on handshake
     });
 
-    socket.on('roomJoined', (roomId) => {
+    socket.on("roomJoined", (roomId) => {
       console.log(`room joined OK: ${roomId}`);
     });
 
-    socket.on('roomJoinError', (err) => {
+    socket.on("roomJoinError", (err) => {
       console.log(err);
     });
 
     return () => {
-      socket.off('connect');
-      socket.off('live-users');
-      socket.off('test message received');
-      socket.off('drawing');
-      socket.off('initial-canvas');
+      socket.off("connect");
+      socket.off("live-users");
+      socket.off("test message received");
+      socket.off("drawing");
+      socket.off("initial-canvas");
     };
   }, []);
 
@@ -89,7 +92,7 @@ const Canvas = () => {
 
   const handleMouseUp = () => {
     isDrawing.current = false;
-    socket.emit('drawing', liveLine);
+    socket.emit("drawing", liveLine);
     console.log(lines);
 
     //prevents flickering of liveLine
@@ -103,8 +106,8 @@ const Canvas = () => {
       pixelRatio: 2, // double resolution
     });
 
-    const link = document.createElement('a');
-    link.download = 'stage.png';
+    const link = document.createElement("a");
+    link.download = "stage.png";
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
@@ -148,20 +151,21 @@ const Canvas = () => {
         }}
       >
         <Layer>
-          {lines.map((line, i) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke={line.colour}
-              strokeWidth={line.strokeWidth}
-              tension={0.5}
-              lineCap="round"
-              lineJoin="round"
-              globalCompositeOperation={
-                line.tool === 'eraser' ? 'destination-out' : 'source-over'
-              }
-            />
-          ))}
+          {lines &&
+            lines.map((line, i) => (
+              <Line
+                key={i}
+                points={line.points}
+                stroke={line.colour}
+                strokeWidth={line.strokeWidth}
+                tension={0.5}
+                lineCap="round"
+                lineJoin="round"
+                globalCompositeOperation={
+                  line.tool === "eraser" ? "destination-out" : "source-over"
+                }
+              />
+            ))}
           {liveLine && (
             <Line
               points={liveLine.points}
@@ -171,7 +175,7 @@ const Canvas = () => {
               lineCap="round"
               lineJoin="round"
               globalCompositeOperation={
-                liveLine.tool === 'eraser' ? 'destination-out' : 'source-over'
+                liveLine.tool === "eraser" ? "destination-out" : "source-over"
               }
             />
           )}
