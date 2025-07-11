@@ -2,7 +2,7 @@ const selectInspirationData = require("../models/selectInspirationData");
 const fetchInspiration = require("../models/fetchInspiration");
 const { getTodaysDate } = require("../utils");
 
-function getTodaysInspiration(req, res, next) {
+function getInspiration(req, res, next) {
   const date = req.params["date"];
   return selectInspirationData(date)
     .then(({ rows: [{ artwork_id, image_id }] }) => {
@@ -22,4 +22,4 @@ function getTodaysInspiration(req, res, next) {
 
 getTodaysInspiration().then((res) => console.log(res));
 
-module.exports = getTodaysInspiration;
+module.exports = getInspiration;

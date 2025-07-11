@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const getInspiration = require("./controllers/getInspiration");
 
 app.use(cors());
 
@@ -11,7 +12,7 @@ app.use(express.static("public"));
 app.get("/", (req, res) => res.send("Hello World!"));
 
 app.get("/inspiration/:date", (req, res, next) => {
-  getTodaysInspiration(req, res, next);
+  getInspiration(req, res, next);
 });
 
 module.exports = app;
