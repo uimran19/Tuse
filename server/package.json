@@ -3,8 +3,14 @@
   "dependencies": {
     "dotenv": "^17.1.0",
     "express": "^5.1.0",
-    "format": "^0.2.2",
     "pg": "^8.16.3",
-    "socket.io": "^4.8.1"
+    "pg-format": "^1.0.4"
+  },
+  "scripts": {
+    "setup-dbs": "psql -f db/setup-dbs.sql",
+    "test": "jest --runInBand"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }

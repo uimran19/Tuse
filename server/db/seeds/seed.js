@@ -1,9 +1,11 @@
-// import db from "../connection";
-import { dropTable, createTable } from "./manageTables";
-// const { dropTable, createTable } = require("./manageTables");
+// NB: IF pageNumber IN THE API CALL IS SET TO ABOVE 10 (i.e. seed() is invoked with a number greater than 10), THE API WILL RETURN UNDEFINED DUE TO ASKING FOR TOO MANY RESULTS. ERROR HANDLING FOR THIS HAS NOT YET BEEN IMPLEMENTED
 
-function getImageIds() {
-  const query = `https://api.artic.edu/api/v1/artworks/search?fields=id,title,artist_title,has_not_been_viewed_much,description,short_description,date_start,date_end,place_of_origin,artist_display,style_title,classification_title,technique_titles,image_id&query[term][is_public_domain]=true&limit=100`;
+const db = require("../connection");
+const { createTable } = require("./manageTables");
+const format = require("pg-format");
+
+function getImageIds(pageNumber) {
+  const query = `https://api.artic.edu/api/v1/artworks/search?fields=id,title,artist_title,has_not_been_viewed_much,description,short_description,date_start,date_end,place_of_origin,artist_display,style_title,classification_title,technique_titles,image_id&query[term][is_public_domain]=true&limit=100&page=${pageNumber}`;
   const options = {
     method: "POST",
     headers: {
@@ -16,35 +18,75 @@ function getImageIds() {
       return result.json();
     })
     .then(({ data }) => {
-      const paintings = data.filter(({ classification_title }) => {
-        return (
-          classification_title === "painting" ||
-          classification_title === "oil on canvas" ||
-          classification_title === "tempera" ||
-          classification_title === "pastel" ||
-          classification_title === "watercolor" ||
-          classification_title === "woodblock print" ||
-          classification_title === "triptych"
-        );
+      const paintings = data.filter(
+        ({ id, image_id, classification_title }) => {
+          if ("" + image_id !== "null" && typeof id === "number") {
+            return (
+              classification_title === "painting" ||
+              classification_title === "oil on canvas" ||
+              classification_title === "tempera" ||
+              classification_title === "pastel" ||
+              classification_title === "watercolor" ||
+              classification_title === "woodblock print" ||
+              classification_title === "triptych"
+            );
+          }
+          return false;
+        }
+      );
+      const uniquePaintings = [...new Set(paintings)];
+      return uniquePaintings.map(({ id, image_id }) => {
+        return { artwork_id: id, image_id };
       });
-      return paintings.map(({ id, image_id }) => {
-        return { id, image_id };
-      });
+    })
+    .catch((err) => {});
+}
+
+function insertArtworks(artworks) {
+  const formattedArtworks = artworks.map(({ artwork_id, image_id }) => {
+    return [artwork_id, image_id];
+  });
+
+  const artworksInsertString = format(
+    `INSERT INTO artworks(artwork_id, image_id) VALUES %L;
+    SELECT pg_size_pretty(pg_database_size('inspiration_station_test'));`,
+    formattedArtworks
+  );
+
+  return db.query(artworksInsertString);
+}
+
+function seed(endPage, pageNumber = 1) {
+  createTable();
+
+  function getImageIdsRecursion(pageNumber, endPage, artworks = []) {
+    return getImageIds(pageNumber).then((artworksToAdd) => {
+      const newArtworks = artworks.concat(artworksToAdd);
+      if (pageNumber !== endPage) {
+        return getImageIdsRecursion(pageNumber + 1, endPage, newArtworks);
+      } else {
+        return newArtworks;
+      }
     });
-  // .then((res) => {
-  //   console.log(res);
-  // });
+  }
+  return getImageIdsRecursion(pageNumber, endPage).then((totalArtworks) => {
+    insertArtworks(totalArtworks).then(
+      ([
+        { rowCount },
+        {
+          rows: [{ pg_size_pretty: dbSize }],
+        },
+      ]) =>
+        console.log(
+          "artworks table seeded with row count: " +
+            rowCount +
+            ", total db size: " +
+            dbSize
+        )
+    );
+  });
 }
 
-export default async function seed() {
-  try {
-    dropTable();
-    createTable();
+seed(10);
 
-    const imageIds = await getImageIds();
-  } catch (err) {}
-}
-
-seed();
-
-//
+module.exports = seed;

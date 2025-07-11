@@ -1,1 +1,3 @@
-export default function runSeed () {}
+function runSeed () {}
+
+module.exports = runSeed;
