@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import TileRow from "./TileRow";
 import Tile from "./Tile";
+import { getNDates } from "../../utils";
+import InspirationTile from "./InspirationTile";
 
 const StyledHomePage = styled.main`
   width: 100%;
@@ -11,18 +13,26 @@ const StyledHomePage = styled.main`
   align-items: stretch;
 `;
 
+const StyledDivider = styled.h2`
+  width: 100%;
+`;
+
 export default function HomePage() {
+  const last7Dates = getNDates(-7);
+
   return (
     <StyledHomePage>
       <TileRow>
+        <Tile url="" />
         <Tile></Tile>
         <Tile></Tile>
-        <Tile></Tile>
+        <InspirationTile date={last7Dates[0][1]} />
       </TileRow>
+      <StyledDivider>Previous Daily Inspirations</StyledDivider>
       <TileRow>
-        <Tile></Tile>
-        <Tile></Tile>
-        <Tile></Tile>
+        {last7Dates.slice(1).map(([, date]) => {
+          return <InspirationTile date={date} />;
+        })}
       </TileRow>
     </StyledHomePage>
   );
