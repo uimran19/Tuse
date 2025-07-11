@@ -2,21 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import { socket } from "../socket";
 
 const JoinRoomButton = () => {
-  const [roomIdInput, setroomIdInput] = useState();
-
-  const handleChange = (e) => {
-    setroomIdInput(e.target.value);
-  };
+  const roomIdRef = useRef();
 
   const handleJoinSubmit = (e) => {
     e.preventDefault();
-    location.href = `http://localhost:5173/canvas/${roomIdInput}`;
+    location.href = `http://localhost:5173/canvas/${roomIdRef.current.value}`;
   };
 
   return (
     <>
       <form>
-        <input onChange={handleChange} value={roomIdInput} />
+        <input ref={roomIdRef} />
         <button onClick={handleJoinSubmit}>Join</button>
       </form>
     </>
