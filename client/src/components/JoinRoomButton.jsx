@@ -12,6 +12,7 @@ const JoinRoomButton = () => {
   return (
     <>
       <form>
+        <label htmlFor="">Room ID: </label>
         <input ref={roomIdRef} />
         <button onClick={handleJoinSubmit}>Join</button>
       </form>
