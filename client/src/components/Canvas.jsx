@@ -68,7 +68,6 @@ const Canvas = () => {
   }, []);
 
   const handleMouseMove = (e) => {
-    e.preventDefault();
     if (!isDrawing.current) {
       return;
     }
@@ -117,15 +116,12 @@ const Canvas = () => {
         <Stage
           width={window.innerWidth}
           height={window.innerHeight}
+          style={touchAction}
           onMouseDown={handleMouseDown}
           onMousemove={handleMouseMove}
           onMouseup={handleMouseUp}
           onTouchStart={handleMouseDown}
-          onTouchMove={(event) => {
-            if (event.touches.length === 1) {
-              handleMouseMove();
-            }
-          }}
+          onTouchMove={handleMouseMove}
           onTouchEnd={handleMouseUp}
           ref={stageRef}
         >
