@@ -1,5 +1,9 @@
 {
+
+  "type": "module",
+
   "main": "listen.js",
+
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.1.0",

@@ -116,6 +116,7 @@ const Canvas = () => {
         <Stage
           width={window.innerWidth}
           height={window.innerHeight}
+          style={touchAction}
           onMouseDown={handleMouseDown}
           onMousemove={handleMouseMove}
           onMouseup={handleMouseUp}
@@ -161,7 +162,8 @@ const Canvas = () => {
     return (
       <>
         <div>Room not found!</div>
-        <a href="http://localhost:5173/">Return home</a>
+        {/* <a href="http://localhost:5173/">Return home</a> */}
+        <Link to={`/home`}>Return home</Link>;
       </>
     );
 };

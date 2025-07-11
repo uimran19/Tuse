@@ -1,12 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { socket } from "../socket";
+import { Link } from "react-router-dom";
 
 const JoinRoomButton = () => {
   const roomIdRef = useRef();
 
   const handleJoinSubmit = (e) => {
     e.preventDefault();
-    location.href = `http://localhost:5173/canvas/${roomIdRef.current.value}`;
+    location.href = `../canvas/${roomIdRef.current.value}`;
+
+    // <Link to={`/canvas/${roomIdRef.current.value}`}></Link>;
   };
 
   return (
