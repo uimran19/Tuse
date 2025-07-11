@@ -10,12 +10,12 @@ const Canvas = () => {
   const [lines, setLines] = React.useState([]);
   const [liveLine, setLiveLine] = React.useState(null);
   const isDrawing = React.useRef(false);
-  const [storedCanvas, setStoredCanvas] = React.useState(null);
   let socketIdRef = useRef("");
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
   const [strokeWidth, setStrokeWidth] = useState(5);
   const [colour, setColour] = useState("#000000");
+  const [isValidRoom, setIsValidRoom] = useState(true);
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
@@ -55,6 +55,7 @@ const Canvas = () => {
 
     socket.on("roomJoinError", (err) => {
       console.log(err);
+      setIsValidRoom(false);
     });
 
     return () => {
@@ -101,64 +102,68 @@ const Canvas = () => {
     document.body.removeChild(link);
   };
 
-  return (
-    <div>
-      <button onClick={handleExport}>Download</button>
+  if (isValidRoom)
+    return (
+      <div>
+        <button onClick={handleExport}>Download</button>
 
-      <Toolbar
-        tool={tool}
-        setTool={setTool}
-        setStrokeWidth={setStrokeWidth}
-        setColour={setColour}
-      />
-      <Stage
-        width={window.innerWidth}
-        height={window.innerHeight}
-        onMouseDown={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onMouseup={handleMouseUp}
-        onTouchStart={handleMouseDown}
-        onTouchMove={handleMouseMove}
-        onTouchEnd={handleMouseUp}
-        ref={stageRef}
-        onClick={(e) => {
-          const stage = e.target.getStage();
-          setStoredCanvas(stage);
-        }}
-      >
-        <Layer>
-          {lines &&
-            lines.map((line, i) => (
+        <Toolbar
+          tool={tool}
+          setTool={setTool}
+          setStrokeWidth={setStrokeWidth}
+          setColour={setColour}
+        />
+        <Stage
+          width={window.innerWidth}
+          height={window.innerHeight}
+          onMouseDown={handleMouseDown}
+          onMousemove={handleMouseMove}
+          onMouseup={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
+          ref={stageRef}
+        >
+          <Layer>
+            {lines &&
+              lines.map((line, i) => (
+                <Line
+                  key={i}
+                  points={line.points}
+                  stroke={line.colour}
+                  strokeWidth={line.strokeWidth}
+                  tension={0.5}
+                  lineCap="round"
+                  lineJoin="round"
+                  globalCompositeOperation={
+                    line.tool === "eraser" ? "destination-out" : "source-over"
+                  }
+                />
+              ))}
+            {liveLine && (
               <Line
-                key={i}
-                points={line.points}
-                stroke={line.colour}
-                strokeWidth={line.strokeWidth}
+                points={liveLine.points}
+                stroke={liveLine.colour}
+                strokeWidth={liveLine.strokeWidth}
                 tension={0.5}
                 lineCap="round"
                 lineJoin="round"
                 globalCompositeOperation={
-                  line.tool === "eraser" ? "destination-out" : "source-over"
+                  liveLine.tool === "eraser" ? "destination-out" : "source-over"
                 }
               />
-            ))}
-          {liveLine && (
-            <Line
-              points={liveLine.points}
-              stroke={liveLine.colour}
-              strokeWidth={liveLine.strokeWidth}
-              tension={0.5}
-              lineCap="round"
-              lineJoin="round"
-              globalCompositeOperation={
-                liveLine.tool === "eraser" ? "destination-out" : "source-over"
-              }
-            />
-          )}
-        </Layer>
-      </Stage>
-    </div>
-  );
+            )}
+          </Layer>
+        </Stage>
+      </div>
+    );
+  else
+    return (
+      <>
+        <div>Room not found!</div>
+        <a href="http://localhost:5173/">Return home</a>
+      </>
+    );
 };
 
 export default Canvas;
