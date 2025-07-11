@@ -6,7 +6,9 @@ const CreateRoomButton = () => {
     console.log(newRoomId);
     document.getElementById(
       "new-room-link"
-    ).innerHTML = `<a href="../canvas/${newRoomId}">Visit your new room</a>`;
+    ).innerHTML = `<a href="../canvas/${newRoomId}">Visit 
+    your new room</a>`;
+
     socket.emit("createRoomRequest", newRoomId);
   };
 
@@ -15,18 +17,17 @@ const CreateRoomButton = () => {
       return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
     };
     return (
-      S4() +
-      S4() +
-      "-" +
-      S4() +
-      "-" +
-      S4() +
-      "-" +
-      S4() +
-      "-" +
-      S4() +
-      S4() +
-      S4()
+      S4() + "-" + S4()
+      //   "-" +
+      //   S4() +
+      //   "-" +
+      //   S4() +
+      //   "-" +
+      //   S4() +
+      //   "-" +
+      //   S4() +
+      //   S4() +
+      //   S4()
     );
   };
 
