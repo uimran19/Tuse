@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node listen.js",
     "setup-dbs": "psql -f db/setup-dbs.sql",
-    "seed": "node db/seeds/run-seed",
+    "seed": "node db/seeds/seed",
     "seed-inspiration": "node db/seeds/seedInspiration",
     "seed-prod": "NODE_ENV=production npm run seed",
     "test": "jest --runInBand"
