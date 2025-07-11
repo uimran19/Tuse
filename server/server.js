@@ -18,7 +18,6 @@ const io = new Server(server, {
 });
 
 const liveUsers = new Set();
-const linesHistory = [];
 
 const knownRooms = ["123XYZ", "123ABC", "123DEF"]; // temp room for test purposes
 const knownCanvases = {};
@@ -63,12 +62,6 @@ io.on("connection", (socket) => {
   });
 
   liveUsers.add(socket.id);
-
-  socket.on("test-socket", (testMsg) => {
-    io.emit("test message received", testMsg + "<-- server response");
-
-    console.log("Server response: " + testMsg);
-  });
 
   socket.on("drawing", (data) => {
     if (!data) return;

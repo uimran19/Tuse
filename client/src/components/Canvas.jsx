@@ -39,10 +39,6 @@ const Canvas = () => {
       setLiveUsers(currUsers);
     });
 
-    socket.on("test message received", (testMsg) => {
-      console.log(testMsg);
-    });
-
     socket.on("drawing", (newLine) => {
       setLines((previous) => [...previous, newLine]);
     });
