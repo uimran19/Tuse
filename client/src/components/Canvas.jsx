@@ -121,8 +121,10 @@ const Canvas = () => {
           onMouseup={handleMouseUp}
           onTouchStart={handleMouseDown}
           onTouchMove={(event) => {
-            event.preventDefault();
-            handleMouseMove();
+            if (event.touches.length === 1) {
+              event.preventDefault();
+              handleMouseMove();
+            }
           }}
           onTouchEnd={handleMouseUp}
           ref={stageRef}
