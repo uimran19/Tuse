@@ -20,7 +20,7 @@ const io = new Server(server, {
 const liveUsers = new Set();
 const linesHistory = [];
 
-const knownRooms = ['123XYZ']; // temp room for test purposes
+const knownRooms = ['123XYZ', '123ABC', '123DEF']; // temp room for test purposes
 const knownCanvases = {};
 //storedCanvases = {#socket.id1 : [lines],
 //                  #socket.id2 : [lines]}
@@ -29,6 +29,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
 
   socket.on('joinRoomRequest', (roomId) => {
+    console.log('connected', roomId, knownRooms);
     if (roomExists(roomId)) {
       socket.join(roomId);
       socket.emit('roomJoined', roomId);
@@ -46,7 +47,7 @@ io.on('connection', (socket) => {
   }
 
   socket.on('get-initial-canvas', () => {
-    socket.emit('initial-canvas', linesHistory);
+    socket.emit('initial-canvas', knownCanvases[roomId]);
   });
 
   liveUsers.add(socket.id);
@@ -66,8 +67,9 @@ io.on('connection', (socket) => {
 
   socket.on('drawing', (data) => {
     if (!data) return;
-    linesHistory.push(data);
-    io.emit('drawing', data);
+    knownCanvases[data.roomId].push(data.newLine);
+    io.to(data.roomId).emit('drawing', data.newLine);
+    console.log(data.roomId);
   });
 
   socket.on('disconnect', () => {
