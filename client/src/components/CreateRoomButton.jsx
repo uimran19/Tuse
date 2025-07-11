@@ -6,7 +6,7 @@ const CreateRoomButton = () => {
     console.log(newRoomId);
     document.getElementById(
       "new-room-link"
-    ).innerHTML = `<a href="http://localhost:5173/canvas/${newRoomId}">Visit your new room</a>`;
+    ).innerHTML = `<a href="../canvas/${newRoomId}">Visit your new room</a>`;
     socket.emit("createRoomRequest", newRoomId);
   };
 

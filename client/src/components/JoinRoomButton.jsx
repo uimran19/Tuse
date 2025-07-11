@@ -6,7 +6,7 @@ const JoinRoomButton = () => {
 
   const handleJoinSubmit = (e) => {
     e.preventDefault();
-    location.href = `http://localhost:5173/canvas/${roomIdRef.current.value}`;
+    location.href = `../canvas/${roomIdRef.current.value}`;
   };
 
   return (
