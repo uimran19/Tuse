@@ -18,37 +18,56 @@ const io = new Server(server, {
 });
 
 const liveUsers = new Set();
-let linesHistory = [];
 
-//storedCanvases = {#socket.id1 : [lines],
-//                  #socket.id2 : [lines]}
+const knownRooms = ["123XYZ", "123ABC", "123DEF"]; // temp room for test purposes
+const knownCanvases = {};
 
 io.on("connection", (socket) => {
   console.log("a user connected");
 
-  socket.on("get-initial-canvas", () => {
-    socket.emit("initial-canvas", linesHistory);
+  socket.on("createRoomRequest", (roomId) => {
+    console.log(roomId);
+    if (!roomExists(roomId)) {
+      knownRooms.push(roomId);
+    }
+    if (!(roomId in knownCanvases)) {
+      knownCanvases[roomId] = [];
+    }
+    socket.join(roomId);
+    socket.emit("roomJoined", roomId);
+    socket.emit("initial-canvas", knownCanvases[roomId]);
+  });
+
+  socket.on("joinRoomRequest", (roomId) => {
+    console.log("User connected to ", roomId, "Known rooms: ", knownRooms);
+    if (roomExists(roomId)) {
+      if (!(roomId in knownCanvases)) {
+        knownCanvases[roomId] = [];
+      }
+      socket.join(roomId);
+      socket.emit("roomJoined", roomId);
+
+      socket.emit("initial-canvas", knownCanvases[roomId]);
+    } else {
+      socket.emit("roomJoinError", "Room ID not recognised");
+    }
+  });
+
+  function roomExists(roomId) {
+    return knownRooms.includes(roomId);
+  }
+
+  socket.on("get-initial-canvas", (roomId) => {
+    socket.emit("initial-canvas", knownCanvases[roomId]);
   });
 
   liveUsers.add(socket.id);
 
-  socket.on("test-socket", (testMsg) => {
-    io.emit("test message received", testMsg + "<-- server response");
-
-    console.log("Server response: " + testMsg);
-  });
-
-  // socket.on("drawing", (data) => {
-  //   linesHistory.push(data);
-  //   io.emit("drawing", linesHistory);
-  // });
-
-  //try emitting just the new line (amended receptio on line 38 of the KonvaCanvas component)
-
   socket.on("drawing", (data) => {
-    if (!data) return;
-    linesHistory.push(data);
-    io.emit("drawing", data);
+    if (!data || !data.canvas_id || !roomExists(data.canvas_id)) return;
+
+    knownCanvases[data.canvas_id].push(data);
+    io.to(data.canvas_id).emit("drawing", data);
   });
 
   socket.on("disconnect", () => {

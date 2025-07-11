@@ -1,0 +1,28 @@
+plugins = []
+headers = []
+redirects = []
+
+[functions]
+
+[functions."*"]
+
+[build]
+publish = "/home/charlieturner/repos/northcoders/group-project-final/Tuse/client/dist"
+publishOrigin = "ui"
+commandOrigin = "ui"
+base = "/home/charlieturner/repos/northcoders/group-project-final/Tuse/client"
+command = "npm run build"
+
+[build.environment]
+
+[build.processing]
+
+[build.processing.css]
+
+[build.processing.html]
+
+[build.processing.images]
+
+[build.processing.js]
+
+[build.services]

@@ -2,23 +2,26 @@ import React, { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
 import { socket } from "../socket";
 import Toolbar from "./Toolbar";
+import { useParams } from "react-router-dom";
 
 const Canvas = () => {
+  const { canvas_id } = useParams();
   const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
   const [liveLine, setLiveLine] = React.useState(null);
   const isDrawing = React.useRef(false);
-  const [storedCanvas, setStoredCanvas] = React.useState(null);
   let socketIdRef = useRef("");
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
   const [strokeWidth, setStrokeWidth] = useState(5);
   const [colour, setColour] = useState("#000000");
+  const [isValidRoom, setIsValidRoom] = useState(true);
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
     setLiveLine({
+      canvas_id,
       tool,
       points: [pos.x, pos.y],
       socketIdRef,
@@ -36,21 +39,23 @@ const Canvas = () => {
       setLiveUsers(currUsers);
     });
 
-    socket.on("test message received", (testMsg) => {
-      console.log(testMsg);
-    });
-
-    // socket.on("drawing", (linesHistory) => {
-    //   setLines(linesHistory);
-    // });
-
     socket.on("drawing", (newLine) => {
       setLines((previous) => [...previous, newLine]);
     });
 
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
-      socket.emit("get-initial-canvas");
+      socket.emit("joinRoomRequest", canvas_id);
+      socket.emit("get-initial-canvas", canvas_id);
+    });
+
+    socket.on("roomJoined", (roomId) => {
+      console.log(`room joined OK: ${roomId}`);
+    });
+
+    socket.on("roomJoinError", (err) => {
+      console.log(err);
+      setIsValidRoom(false);
     });
 
     return () => {
@@ -78,9 +83,7 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
     socket.emit("drawing", liveLine);
-    console.log(lines);
 
-    //prevents flickering of liveLine
     requestAnimationFrame(() => {
       setLiveLine(null);
     });
@@ -88,7 +91,7 @@ const Canvas = () => {
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
-      pixelRatio: 2, // double resolution
+      pixelRatio: 2,
     });
 
     const link = document.createElement("a");
@@ -99,74 +102,68 @@ const Canvas = () => {
     document.body.removeChild(link);
   };
 
-  return (
-    <div>
-      <button onClick={handleExport}>Download</button>
-      <select
-        value={tool}
-        onChange={(e) => {
-          setTool(e.target.value);
-        }}
-      >
-        <option value="pen">Pen</option>
-        <option value="eraser">Eraser</option>
-      </select>
-      <Toolbar
-        tool={tool}
-        setTool={setTool}
-        setStrokeWidth={setStrokeWidth}
-        setColour={setColour}
-      />
-      <Stage
-        width={window.innerWidth}
-        height={window.innerHeight}
-        onMouseDown={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onMouseup={handleMouseUp}
-        // onMouseOut={handleMouseUp}
-        onTouchStart={handleMouseDown}
-        onTouchMove={handleMouseMove}
-        onTouchEnd={handleMouseUp}
-        ref={stageRef}
-        onClick={(e) => {
-          const stage = e.target.getStage();
+  if (isValidRoom)
+    return (
+      <div>
+        <button onClick={handleExport}>Download</button>
 
-          //   console.log(stage);
-          setStoredCanvas(stage);
-        }}
-      >
-        <Layer>
-          {lines.map((line, i) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke={line.colour}
-              strokeWidth={line.strokeWidth}
-              tension={0.5}
-              lineCap="round"
-              lineJoin="round"
-              globalCompositeOperation={
-                line.tool === "eraser" ? "destination-out" : "source-over"
-              }
-            />
-          ))}
-          {liveLine && (
-            <Line
-              points={liveLine.points}
-              stroke={liveLine.colour}
-              strokeWidth={liveLine.strokeWidth}
-              tension={0.5}
-              lineCap="round"
-              lineJoin="round"
-              globalCompositeOperation={
-                liveLine.tool === "eraser" ? "destination-out" : "source-over"
-              }
-            />
-          )}
-        </Layer>
-      </Stage>
-    </div>
-  );
+        <Toolbar
+          tool={tool}
+          setTool={setTool}
+          setStrokeWidth={setStrokeWidth}
+          setColour={setColour}
+        />
+        <Stage
+          width={window.innerWidth}
+          height={window.innerHeight}
+          onMouseDown={handleMouseDown}
+          onMousemove={handleMouseMove}
+          onMouseup={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchMove={handleMouseMove}
+          onTouchEnd={handleMouseUp}
+          ref={stageRef}
+        >
+          <Layer>
+            {lines &&
+              lines.map((line, i) => (
+                <Line
+                  key={i}
+                  points={line.points}
+                  stroke={line.colour}
+                  strokeWidth={line.strokeWidth}
+                  tension={0.5}
+                  lineCap="round"
+                  lineJoin="round"
+                  globalCompositeOperation={
+                    line.tool === "eraser" ? "destination-out" : "source-over"
+                  }
+                />
+              ))}
+            {liveLine && (
+              <Line
+                points={liveLine.points}
+                stroke={liveLine.colour}
+                strokeWidth={liveLine.strokeWidth}
+                tension={0.5}
+                lineCap="round"
+                lineJoin="round"
+                globalCompositeOperation={
+                  liveLine.tool === "eraser" ? "destination-out" : "source-over"
+                }
+              />
+            )}
+          </Layer>
+        </Stage>
+      </div>
+    );
+  else
+    return (
+      <>
+        <div>Room not found!</div>
+        <a href="http://localhost:5173/">Return home</a>
+      </>
+    );
 };
 
 export default Canvas;
