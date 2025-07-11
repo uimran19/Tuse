@@ -8,7 +8,7 @@ function getTodaysInspiration(req, res, next) {
       return { artwork_id, image_id };
     })
     .catch((err) => {
-      next(err);
+      console.log(err);
     });
 }
 
