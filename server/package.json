@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "main": "listen.js",
   "dependencies": {
     "cors": "^2.8.5",
