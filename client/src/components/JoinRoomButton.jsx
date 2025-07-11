@@ -7,9 +7,9 @@ const JoinRoomButton = () => {
 
   const handleJoinSubmit = (e) => {
     e.preventDefault();
-    // location.href = `../canvas/${roomIdRef.current.value}`;
+    location.href = `../canvas/${roomIdRef.current.value}`;
 
-    <Link to={`/canvas/${roomIdRef.current.value}`}></Link>;
+    // <Link to={`/canvas/${roomIdRef.current.value}`}></Link>;
   };
 
   return (
