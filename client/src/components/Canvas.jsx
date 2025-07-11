@@ -21,6 +21,7 @@ const Canvas = () => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
     setLiveLine({
+      canvas_id,
       tool,
       points: [pos.x, pos.y],
       socketIdRef,
@@ -54,6 +55,14 @@ const Canvas = () => {
       socketIdRef.current = socket.id;
       socket.emit('joinRoomRequest', canvas_id);
       socket.emit('get-initial-canvas'); //conditional on handshake
+    });
+
+    socket.on('roomJoined', (roomId) => {
+      console.log(`room joined OK: ${roomId}`);
+    });
+
+    socket.on('roomJoinError', (err) => {
+      console.log(err);
     });
 
     return () => {
