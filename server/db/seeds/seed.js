@@ -48,8 +48,8 @@ function insertArtworks(artworks) {
   });
 
   const artworksInsertString = format(
-    `INSERT INTO artworks(artwork_id, image_id) VALUES %L;
-    SELECT pg_size_pretty(pg_database_size('inspiration_station_test'));`,
+    `INSERT INTO artworks(artwork_id, image_id) VALUES %L;`,
+    // SELECT pg_size_pretty(pg_database_size('inspiration_station_test'));`,
     formattedArtworks
   );
 
@@ -69,21 +69,13 @@ function seed(endPage, pageNumber = 1) {
       }
     });
   }
-  return getImageIdsRecursion(pageNumber, endPage).then((totalArtworks) => {
-    insertArtworks(totalArtworks).then(
-      ([
-        { rowCount },
-        {
-          rows: [{ pg_size_pretty: dbSize }],
-        },
-      ]) =>
-        console.log(
-          "artworks table seeded with row count: " +
-            rowCount +
-            ", total db size: " +
-            dbSize
-        )
-    );
+  return getImageIdsRecursion(pageNumber, endPage)
+    .then((totalArtworks) => {
+      insertArtworks(totalArtworks)
+        .then((insertedArtworks) => {
+          console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
+        }
+      );
   });
 }
 
