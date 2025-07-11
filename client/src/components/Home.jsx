@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { socket } from '../socket';
+import React, { useEffect, useRef, useState } from "react";
+import { socket } from "../socket";
 
 const Home = () => {
   const handleCreateRoomClick = (newRoomId) => {
     console.log(newRoomId);
     document.getElementById(
-      'new-room-link'
-    ).innerHTML = `Visit your new room at /canvas/${newRoomId}`;
-    socket.emit('createRoomRequest', newRoomId);
+      "new-room-link"
+    ).innerHTML = `<a href="http://localhost:5173/canvas/${newRoomId}">Visit your new room</a>`;
+    socket.emit("createRoomRequest", newRoomId);
   };
 
   const uuid = () => {
@@ -17,13 +17,13 @@ const Home = () => {
     return (
       S4() +
       S4() +
-      '-' +
+      "-" +
       S4() +
-      '-' +
+      "-" +
       S4() +
-      '-' +
+      "-" +
       S4() +
-      '-' +
+      "-" +
       S4() +
       S4() +
       S4()
