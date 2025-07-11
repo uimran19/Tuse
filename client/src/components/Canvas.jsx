@@ -68,6 +68,7 @@ const Canvas = () => {
   }, []);
 
   const handleMouseMove = (e) => {
+    e.preventDefault();
     if (!isDrawing.current) {
       return;
     }
@@ -122,7 +123,6 @@ const Canvas = () => {
           onTouchStart={handleMouseDown}
           onTouchMove={(event) => {
             if (event.touches.length === 1) {
-              event.preventDefault();
               handleMouseMove();
             }
           }}
