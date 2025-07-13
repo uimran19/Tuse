@@ -1,7 +1,5 @@
 {
 
-  "type": "module",
-
   "main": "listen.js",
 
   "dependencies": {
