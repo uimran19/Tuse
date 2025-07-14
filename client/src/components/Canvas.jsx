@@ -81,6 +81,7 @@ const Canvas = () => {
     const touches = e.evt.touches;
 
     if (touches.length > 1) {
+      e.evt.preventDefault();
       stage.draggable(true);
       isDrawing.current = false;
       // console.log(touches);
