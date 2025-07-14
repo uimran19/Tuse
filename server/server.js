@@ -1,25 +1,36 @@
-import express from "express";
-import { createServer } from "node:http";
-import { Server } from "socket.io";
-
+const express = require("express");
+const { createServer } = require("node:http");
+const { Server } = require("socket.io");
+const cors = require("cors");
+const getTodaysInspiration = require("./controllers/getTodaysInspiration");
 const app = express();
 const server = createServer(app);
 
-// const io = new Server(server, {
-//   cors: {
-//     origin: "https://alternative-socket-testing.netlify.app",
-//   },
-// });
+app.use(cors());
+
+app.use(express.json());
+
+app.use(express.static("public"));
+
+app.get("/", (req, res) => res.send("Hello World!"));
+
+app.get("/inspiration/:date", (req, res, next) => {
+  getInspiration(req, res, next);
+});
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+      "https://tusemain.netlify.app",
+    ],
   },
 });
 
-const liveUsers = new Set();
+const liveUsers = new Set(); // Confirm if needed
 
-const knownRooms = ["123XYZ", "123ABC", "123DEF"]; // temp room for test purposes
+const knownRooms = ["1234-abcd", "5678-abcd", "7890-abcd"]; // temp room for test purposes
 const knownCanvases = {};
 
 io.on("connection", (socket) => {

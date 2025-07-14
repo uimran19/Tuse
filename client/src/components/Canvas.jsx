@@ -3,6 +3,7 @@ import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
 import { socket } from "../socket";
 import Toolbar from "./Toolbar";
 import { useParams } from "react-router-dom";
+import { BsDisplay } from "react-icons/bs";
 
 const Canvas = () => {
   const { canvas_id } = useParams();
@@ -161,7 +162,8 @@ const Canvas = () => {
     return (
       <>
         <div>Room not found!</div>
-        <a href="http://localhost:5173/">Return home</a>
+        {/* <a href="http://localhost:5173/">Return home</a> */}
+        <Link to={`/home`}>Return home</Link>;
       </>
     );
 };

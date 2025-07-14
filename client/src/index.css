@@ -60,11 +60,11 @@ button:hover:not(.active) {
   /* background-color: #f9e5e5; */
 }
 .active {
-  /* background-color: #FFC9C9; */
+  background-color: #ffc9c9;
 }
 
 button.undoRedoButtons:active {
-  /* background-color: #FFC9C9; */
+  background-color: #ffc9c9;
 }
 
 .paletteDropdown {
@@ -80,4 +80,11 @@ button.undoRedoButtons:active {
   a:hover {
     color: #747bff;
   }
+}
+
+.toolbar,
+#toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
