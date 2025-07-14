@@ -78,39 +78,47 @@ const Canvas = () => {
   const handleTouchStart = (e) => {
     const stage = stageRef.current;
     stage.draggable(false);
+    const touches = e.evt.touches;
 
-    isDrawing.current = true;
-    const pointer = stage.getPointerPosition();
-    const pos = {
-      x: (pointer.x - stage.x()) / stage.scaleX(),
-      y: (pointer.y - stage.y()) / stage.scaleY(),
-    };
-    setLiveLine({
-      canvas_id,
-      tool,
-      points: [pos.x, pos.y],
-      socketIdRef,
-      strokeWidth,
-      colour,
-    });
+    if (touches.length > 1) {
+      stage.draggable(true);
+      isDrawing.current = false;
+    } else {
+      e.evt.preventDefault();
+      isDrawing.current = true;
+      const pointer = stage.getPointerPosition();
+      const pos = {
+        x: (pointer.x - stage.x()) / stage.scaleX(),
+        y: (pointer.y - stage.y()) / stage.scaleY(),
+      };
+      setLiveLine({
+        canvas_id,
+        tool,
+        points: [pos.x, pos.y],
+        socketIdRef,
+        strokeWidth,
+        colour,
+      });
+    }
   };
 
   const handleTouchMove = (e) => {
     e.evt.preventDefault();
-    isDrawing.current = true;
 
-    const stage = stageRef.current;
-    const pointer = stage.getPointerPosition();
+    if (isDrawing.current === true) {
+      const stage = stageRef.current;
+      const pointer = stage.getPointerPosition();
 
-    const pos = {
-      x: (pointer.x - stage.x()) / stage.scaleX(),
-      y: (pointer.y - stage.y()) / stage.scaleY(),
-    };
+      const pos = {
+        x: (pointer.x - stage.x()) / stage.scaleX(),
+        y: (pointer.y - stage.y()) / stage.scaleY(),
+      };
 
-    setLiveLine({
-      ...liveLine,
-      points: [...liveLine.points, pos.x, pos.y],
-    });
+      setLiveLine({
+        ...liveLine,
+        points: [...liveLine.points, pos.x, pos.y],
+      });
+    }
   };
 
   // const h
