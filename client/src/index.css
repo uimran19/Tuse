@@ -40,7 +40,7 @@ h1 {
 }
 
 .toolbar {
-  background-color: #ffffffd6;
+  background-color: white;
   border: 1px solid rgba(0, 0, 0, 0.128);
 }
 
@@ -69,7 +69,50 @@ button.undoRedoButtons:active {
 
 .paletteDropdown {
   background-color: white;
-  border: 1px solid #ccc;
+  border: 1px solid white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 130px;
+  margin-left: 743px;
+  padding-top: 5px;
+  padding-bottom: 4px;
+  border-radius: 10px;
+  font-size: 0.8em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 1px;
+}
+
+.toolbarSplit {
+  color: #242424;
+}
+
+.paletteNonColourOptions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.paletteOpacity {
+  display: flex;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.nonPaletteValues {
+  color: black;
+}
+
+.paletteLabels{
+  color: black;
+}
+
+#strokeWidth{
+  max-width: 2.5rem;
+}
+
+#opacity {
+  max-width: 2.5rem;
 }
 
 @media (prefers-color-scheme: light) {

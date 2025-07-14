@@ -14,13 +14,21 @@ const Canvas = () => {
   let socketIdRef = useRef("");
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
-  const [strokeWidth, setStrokeWidth] = useState(5);
+  const [strokeWidth, setStrokeWidth] = useState(1);
+  const [opacity, setOpacity] = useState(1)
   const [colour, setColour] = useState("#000000");
   const [isValidRoom, setIsValidRoom] = useState(true);
+  const [rectangles, setRectangles] = useState([])
+  const [currentRect, setCurrentRect] = useState(null)
 
   const handleMouseDown = (e) => {
     isDrawing.current = true;
     const pos = e.target.getStage().getPointerPosition();
+    if (tool === 'rectangle') {
+      setCurrentRect({
+        
+      })
+    }
     setLiveLine({
       canvas_id,
       tool,
@@ -28,6 +36,7 @@ const Canvas = () => {
       socketIdRef,
       strokeWidth,
       colour,
+      opacity
     });
   };
 
@@ -112,7 +121,10 @@ const Canvas = () => {
           tool={tool}
           setTool={setTool}
           setStrokeWidth={setStrokeWidth}
+          strokeWidth={strokeWidth}
           setColour={setColour}
+          opacity={opacity}
+          setOpacity={setOpacity}
         />
         <Stage
           width={window.innerWidth}
@@ -133,6 +145,7 @@ const Canvas = () => {
                   points={line.points}
                   stroke={line.colour}
                   strokeWidth={line.strokeWidth}
+                  opacity={line.tool === 'eraser' ? 1 : line.opacity}
                   tension={0.5}
                   lineCap="round"
                   lineJoin="round"
@@ -146,6 +159,7 @@ const Canvas = () => {
                 points={liveLine.points}
                 stroke={liveLine.colour}
                 strokeWidth={liveLine.strokeWidth}
+                opacity={liveLine.tool === 'eraser' ? 1 : liveLine.opacity}
                 tension={0.5}
                 lineCap="round"
                 lineJoin="round"
