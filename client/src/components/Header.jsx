@@ -19,7 +19,14 @@ const StyledHeader = styled.header`
   }
 
   & #home-button {
-    background: linear-gradient(to right, red, blue, green, yellow);
+    background: linear-gradient(
+      to right,
+      #4d9de0,
+      #e15554,
+      #e1bc29,
+      #3bb273,
+      #7768ae
+    );
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
