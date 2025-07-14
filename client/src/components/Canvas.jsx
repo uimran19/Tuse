@@ -17,21 +17,35 @@ const Canvas = () => {
   const [strokeWidth, setStrokeWidth] = useState(5);
   const [colour, setColour] = useState("#000000");
   const [isValidRoom, setIsValidRoom] = useState(true);
+  Konva.dragButtons = [1];
 
   const handleMouseDown = (e) => {
-    isDrawing.current = true;
-    const pos = e.target.getStage().getPointerPosition();
-    setLiveLine({
-      canvas_id,
-      tool,
-      points: [pos.x, pos.y],
-      socketIdRef,
-      strokeWidth,
-      colour,
-    });
+    const stage = stageRef.current;
+
+    if (e.evt.button === 1) {
+      isDrawing.current = false;
+      return;
+    }
+
+    if (e.evt.button !== 1) {
+      isDrawing.current = true;
+      const pointer = stage.getPointerPosition();
+      const pos = {
+        x: (pointer.x - stage.x()) / stage.scaleX(),
+        y: (pointer.y - stage.y()) / stage.scaleY(),
+      };
+      setLiveLine({
+        canvas_id,
+        tool,
+        points: [pos.x, pos.y],
+        socketIdRef,
+        strokeWidth,
+        colour,
+      });
+    }
   };
 
-  const handleWheel = (e) => {
+  const handleWheelScroll = (e) => {
     e.evt.preventDefault();
     const stage = stageRef.current;
     const oldScale = stage.scaleX();
@@ -107,19 +121,25 @@ const Canvas = () => {
     if (!isDrawing.current) {
       return;
     }
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
+    const stage = stageRef.current;
+    const pointer = stage.getPointerPosition();
+
+    const pos = {
+      x: (pointer.x - stage.x()) / stage.scaleX(),
+      y: (pointer.y - stage.y()) / stage.scaleY(),
+    };
 
     setLiveLine({
       ...liveLine,
-      points: [...liveLine.points, point.x, point.y],
+      points: [...liveLine.points, pos.x, pos.y],
     });
   };
 
   const handleMouseUp = () => {
     isDrawing.current = false;
-    socket.emit("drawing", liveLine);
-
+    if (liveLine && liveLine.points.length > 0) {
+      socket.emit("drawing", liveLine);
+    }
     requestAnimationFrame(() => {
       setLiveLine(null);
     });
@@ -158,8 +178,9 @@ const Canvas = () => {
           onTouchStart={handleMouseDown}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleMouseUp}
-          onWheel={handleWheel}
+          onWheel={handleWheelScroll}
           ref={stageRef}
+          draggable
         >
           <Layer>
             {lines &&
@@ -198,7 +219,6 @@ const Canvas = () => {
     return (
       <>
         <div>Room not found!</div>
-        {/* <a href="http://localhost:5173/">Return home</a> */}
         <Link to={`/home`}>Return home</Link>;
       </>
     );
