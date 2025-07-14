@@ -15,6 +15,7 @@
     "seed": "node db/seeds/seed",
     "seed-inspiration": "node db/seeds/seedInspiration",
     "seed-prod": "NODE_ENV=production npm run seed",
+    "seed-inspiration-prod": "NODE_ENV=production npm run seed-inspiration",
     "test": "jest --runInBand"
   },
   "devDependencies": {
