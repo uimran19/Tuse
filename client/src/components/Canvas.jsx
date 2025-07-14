@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
 import { socket } from "../socket";
 import Toolbar from "./Toolbar";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
 
 const Canvas = () => {
@@ -41,7 +41,9 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
-      setLines((previous) => [...previous, newLine]);
+      if (newLine.socketIdRef !== socketIdRef) {
+        setLines((previous) => [...previous, newLine]);
+      }
     });
 
     socket.on("connect", () => {
@@ -84,7 +86,7 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
     socket.emit("drawing", liveLine);
-
+    lines.push(liveLine);
     requestAnimationFrame(() => {
       setLiveLine(null);
     });
