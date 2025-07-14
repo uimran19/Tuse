@@ -44,6 +44,51 @@ export const notesFont = `${fonts.rockSaltRegular}
   font-size: small;
 `;
 
-// export const h1Styling = `
+export const tileStyling = (props) => {
+  return `
+  --tile-size: 15rem;
+  display: flex;
+  aspect-ratio: 1/1;
+  margin: 0.5rem;
+  user-select: none;
+  width: var(--tile-size);
+  padding: 0;
+  border: hidden;
+  justify-content: center;
+  align-items: center;
 
-// `;
+  --label-background-color: ${
+    props.$displayLabel
+      ? "rgba(from var(--canvas-color) r g b / 0.6)"
+      : "transparent"
+  };
+
+  &:hover {
+    --label-background-color: ${
+      props.$displayAlt
+        ? "rgba(from var(--canvas-color) r g b / 0.6)"
+        : "transparent"
+    };
+  }
+
+  ${hoverLiftStyling}
+
+  & label {
+    line-height: 2em;
+    ${subTitleFont}
+  }
+
+  & label .alt-label {
+    display: none;
+    ${props.$displayAlt ? notesFont : subTitleFont}
+  }
+
+  &:hover label .main-label {
+    display: none;
+  }
+
+  &:hover label .alt-label {
+    display: block;
+  }
+`;
+};

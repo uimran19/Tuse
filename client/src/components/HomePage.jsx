@@ -10,6 +10,8 @@ import Background from "./Background";
 
 const StyledHomePage = styled.main`
   width: 100%;
+  position: relative;
+  top: var(--header-height);
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -22,7 +24,7 @@ const StyledHomePage = styled.main`
 const StyledDivider = styled.h2`
   width: 100%;
   color: var(--text-color-dark);
-  margin: 0.2em;
+  margin: 0.2em 0;
   ${titleFont}
 `;
 
@@ -31,12 +33,13 @@ export default function HomePage() {
 
   return (
     <>
+      {/* <Header /> */}
       <Background />
       <StyledHomePage>
         <TileRow>
           <Tile url="" label="Jump back in" alt="2000-01-01" />
           <NewCanvasTile />
-          <JoinRoomTile />
+          {/* <JoinRoomTile /> */}
           <InspirationTile
             date={last7Dates[0][1]}
             label="Today's inspiration"
