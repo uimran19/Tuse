@@ -15,3 +15,5 @@ function selectInspirationData(date) {
 }
 
 module.exports = selectInspirationData;
+
+// selectInspirationData("2025-07-11").then((res) => console.log(res.rows));

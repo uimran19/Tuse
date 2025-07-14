@@ -45,19 +45,19 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
+  /* border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: white;
+  background-color: white; */
   cursor: pointer;
-  transition: border-color 0.25s;
-  color: black;
+  /* transition: border-color 0.25s;
+  color: black; */
 }
 button:hover:not(.active) {
-  background-color: #f9e5e5;
+  /* background-color: #f9e5e5; */
 }
 .active {
   background-color: #ffc9c9;
