@@ -53,7 +53,6 @@ const StyledTileImage = styled.img`
   height: 100%;
   width: 100%;
   border: none;
-  background-color: black;
 `;
 
 const StyledTileLabel = styled.label`
@@ -70,15 +69,11 @@ const StyledTileLabel = styled.label`
   box-shadow: 0 0 5px 5px var(--label-background-color);
 `;
 
-export default function Tile({ url, src, label, alt }) {
+export default function Tile({ url, src, label, alt, onClick }) {
   const navigate = useNavigate();
 
   return (
-    <StyledTile
-      $displayLabel={label}
-      $displayAlt={alt}
-      onClick={() => navigate(url)}
-    >
+    <StyledTile $displayLabel={label} $displayAlt={alt} onClick={onClick}>
       <StyledTileImage $src={src} />
       <StyledTileLabel>
         {label ? <p className="main-label">{label}</p> : <></>}
