@@ -86,10 +86,11 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
     socket.emit("drawing", liveLine);
-    lines.push(liveLine);
-    requestAnimationFrame(() => {
-      setLiveLine(null);
-    });
+    setLines((prevLines) => [...prevLines, liveLine]);
+    // requestAnimationFrame(() => {
+    //   setLiveLine(null);
+    // });
+    setLiveLine(null);
   };
 
   const handleExport = () => {
