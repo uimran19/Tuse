@@ -16,13 +16,49 @@ const Canvas = () => {
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
   const [strokeWidth, setStrokeWidth] = useState(1);
-  const [opacity, setOpacity] = useState(1)
+  const [opacity, setOpacity] = useState(1);
   const [colour, setColour] = useState("#000000");
   const [isValidRoom, setIsValidRoom] = useState(true);
-  const [rectangles, setRectangles] = useState([])
-  const [currentRect, setCurrentRect] = useState(null)
+  const [rectangles, setRectangles] = useState([]);
+  const [currentRect, setCurrentRect] = useState(null);
 
   Konva.dragButtons = [1];
+
+  const downloadFile = () => {
+    console.log("Lines pre upload --> ", lines);
+    const myData = lines;
+    console.log(myData);
+    const fileName = "my-file";
+    const json = JSON.stringify(myData, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const href = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
+  const setCanvasWithFile = (e) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = (e) => {
+      const newLines = JSON.parse(e.target.result);
+      console.log(newLines);
+      const newestLines = newLines.map((line) => {
+        const newestLine = { ...line };
+        newestLine.canvas_id = canvas_id;
+        newestLine.socketIdRef = socketIdRef;
+        return newestLine;
+      });
+      console.log(newestLines);
+      setLines(newestLines);
+    };
+  };
 
   const handleMouseDown = (e) => {
     const stage = stageRef.current;
@@ -39,11 +75,9 @@ const Canvas = () => {
         x: (pointer.x - stage.x()) / stage.scaleX(),
         y: (pointer.y - stage.y()) / stage.scaleY(),
       };
-       if (tool === 'rectangle') {
-      setCurrentRect({
-        
-      })
-    }
+      if (tool === "rectangle") {
+        setCurrentRect({});
+      }
       setLiveLine({
         canvas_id,
         tool,
@@ -51,7 +85,7 @@ const Canvas = () => {
         socketIdRef,
         strokeWidth,
         colour,
-        opacity
+        opacity,
       });
     }
   };
@@ -132,8 +166,6 @@ const Canvas = () => {
     }
   };
 
-  // const h
-
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
@@ -195,7 +227,6 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
 
-    
     if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
       setLines((prevLines) => [...prevLines, liveLine]);
@@ -203,8 +234,6 @@ const Canvas = () => {
     requestAnimationFrame(() => {
       setLiveLine(null);
     });
-
-    
   };
 
   const handleExport = () => {
@@ -224,6 +253,8 @@ const Canvas = () => {
     return (
       <div>
         <button onClick={handleExport}>Download</button>
+        <button onClick={downloadFile}>Download Editable</button>
+        <input type="file" onChange={setCanvasWithFile} />
 
         <Toolbar
           tool={tool}
@@ -255,7 +286,7 @@ const Canvas = () => {
                   points={line.points}
                   stroke={line.colour}
                   strokeWidth={line.strokeWidth}
-                  opacity={line.tool === 'eraser' ? 1 : line.opacity}
+                  opacity={line.tool === "eraser" ? 1 : line.opacity}
                   tension={0.5}
                   lineCap="round"
                   lineJoin="round"
@@ -269,7 +300,7 @@ const Canvas = () => {
                 points={liveLine.points}
                 stroke={liveLine.colour}
                 strokeWidth={liveLine.strokeWidth}
-                opacity={liveLine.tool === 'eraser' ? 1 : liveLine.opacity}
+                opacity={liveLine.tool === "eraser" ? 1 : liveLine.opacity}
                 tension={0.5}
                 lineCap="round"
                 lineJoin="round"
