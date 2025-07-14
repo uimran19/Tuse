@@ -3,7 +3,7 @@ const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
-const getInspiration = require("./controllers/getInspiration");
+//const getInspiration = require("./controllers/getInspiration");
 
 const app = express();
 const server = createServer(app);
@@ -16,9 +16,9 @@ app.use(express.static("public"));
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
-app.get("/inspiration/:date", (req, res, next) => {
-  getInspiration(req, res, next);
-});
+// app.get("/inspiration/:date", (req, res, next) => {
+//   getInspiration(req, res, next);
+// });
 
 const io = new Server(server, {
   cors: {
