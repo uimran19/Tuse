@@ -184,7 +184,6 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
 
-    
     if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
       setLines((prevLines) => [...prevLines, liveLine]);
@@ -192,8 +191,6 @@ const Canvas = () => {
     requestAnimationFrame(() => {
       setLiveLine(null);
     });
-
-    
   };
 
   const handleExport = () => {
