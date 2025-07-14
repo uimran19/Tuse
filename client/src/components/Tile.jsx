@@ -1,53 +1,104 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { hoverLiftStyling } from "./classes";
+
+const tileStyling = `
+`;
 
 const StyledTile = styled.button`
   --tile-size: 15rem;
-  width: var(--tile-size);
+  display: flex;
   aspect-ratio: 1/1;
-  background-color: white;
-  margin: 1rem;
+  margin: 0.5rem;
+  user-select: none;
+  width: var(--tile-size);
   padding: 0;
-  color: transparent;
+  border: hidden;
+  justify-content: center;
+  align-items: center;
+
+  --label-background-color: ${(props) =>
+    props.$displayLabel
+      ? "rgba(from var(--canvas-color) r g b / 0.6)"
+      : "transparent"};
 
   &:hover {
-    color: white;
+    --label-background-color: ${(props) =>
+      props.$displayAlt
+        ? "rgba(from var(--canvas-color) r g b / 0.6)"
+        : "transparent"};
   }
+
+  ${hoverLiftStyling}
+
+  & label p {
+    line-height: 2em;
   }
+
+  & label .alt-label {
+    display: none;
+  }
+
+  &:hover label .main-label {
+    display: none;
+  }
+
+  &:hover label .alt-label {
+    display: block;
+  }
+`;
+//   background-color: var(--canvas-color);
+//   color: var(--alt-color);
+//   width: var(--tile-size);
+//   position: relative;
+//   top: calc(0rem - var(--tile-size));
+//   pointer-events: none;
+//   width: 100%;
+//   height: 100%;
+
+//   & * {
+//     background-color: white;
+//   }
+// `;
+
+const StyledTileImage = styled.img`
+  ${(props) =>
+    props?.$src
+      ? `background: url(${props.$src})`
+      : `background-color: var(--canvas-color)`};
+  height: 100%;
+  width: 100%;
+  border: none;
+  background-color: black;
 `;
 
 const StyledTileLabel = styled.label`
-  color: inherit;
-  position: relative;
-  top: calc(0rem - var(--tile-size));
-  left: 0;
+  display: block;
+  white-space: pre-line;
+  position: absolute;
+  border-radius: 0.5em;
+  width: max-content;
+  max-width: 90%;
   pointer-events: none;
+  transition: all 235ms ease-in-out;
+  color: var(--text-color-dark);
+  background-color: var(--label-background-color);
+  box-shadow: 0 0 5px 5px var(--label-background-color);
 `;
 
-const StyledTileImage = styled.img`
-  background-color: grey;
-  background: url(${(props) => props.$src});
-  height: 100%;
-  width: 100%;
-
-  &:hover {
-    filter: brightness(50%) blur(5px);
-`;
-
-export default function Tile({ children, url, src }) {
+export default function Tile({ url, src, label, alt }) {
   const navigate = useNavigate();
-  console.log(children);
 
   return (
-    <StyledTile onClick={() => navigate(url)}>
+    <StyledTile
+      $displayLabel={label}
+      $displayAlt={alt}
+      onClick={() => navigate(url)}
+    >
       <StyledTileImage $src={src} />
       <StyledTileLabel>
-        <h3>{children?.[0]}</h3>
-        <p>
-          {children?.slice(1)?.map((child) => {
-            return <div>{child}</div>;
-          })}
-        </p>
+        {label ? <p className="main-label">{label}</p> : <></>}
+        {alt ? <p className="alt-label">{alt}</p> : <></>}
       </StyledTileLabel>
     </StyledTile>
   );
