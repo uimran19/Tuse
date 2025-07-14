@@ -11,7 +11,38 @@ export const hoverLiftStyling = `
   }
 `;
 
-// const fonts = {};
+const fonts = {
+  rockSaltRegular: `
+    font-family: "Rock Salt", cursive;
+    font-weight: 400;
+    font-style: normal;
+  `,
+  homemadeAppleRegular: `
+    font-family: "Homemade Apple", cursive;
+    font-weight: 400;
+    font-style: normal;
+  `,
+  protestRevolutionRegular: `
+  font-family: "Protest Revolution", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  `,
+  lacquerRegular: `
+  font-family: "Lacquer", system-ui;
+  font-weight: 400;
+  font-style: normal;
+  `,
+};
+
+export const titleFont = `${fonts.protestRevolutionRegular}
+  font-size: xxx-large;
+`;
+export const subTitleFont = `${fonts.rockSaltRegular}
+  font-size: large;
+`;
+export const notesFont = `${fonts.rockSaltRegular}
+  font-size: small;
+`;
 
 // export const h1Styling = `
 

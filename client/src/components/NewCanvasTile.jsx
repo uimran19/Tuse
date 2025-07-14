@@ -21,7 +21,7 @@ export default function NewCanvasTile() {
   return (
     <Tile
       label="Start a new canvas"
-      alt="Start a new canvas"
+      // alt="Start a new canvas"
       onClick={() => {
         handleCreateRoomClick(createRoomId());
       }}

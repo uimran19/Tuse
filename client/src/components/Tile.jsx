@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { hoverLiftStyling } from "./classes";
+import { hoverLiftStyling, subTitleFont, notesFont } from "./classes";
 
 const StyledTile = styled.button`
   --tile-size: 15rem;
@@ -28,12 +28,14 @@ const StyledTile = styled.button`
 
   ${hoverLiftStyling}
 
-  & label p {
+  & label {
     line-height: 2em;
+    ${subTitleFont}
   }
 
   & label .alt-label {
     display: none;
+    ${(props) => (props.$displayAlt ? notesFont : subTitleFont)}
   }
 
   &:hover label .main-label {
@@ -62,6 +64,8 @@ const StyledTileLabel = styled.label`
   border-radius: 0.5em;
   width: max-content;
   max-width: 90%;
+  max-height: 100%;
+  overflow: hidden;
   pointer-events: none;
   transition: all 235ms ease-in-out;
   color: var(--text-color-dark);
@@ -78,6 +82,7 @@ export default function Tile({
   alt,
   onClick,
   onSubmit,
+  className,
 }) {
   const navigate = useNavigate();
 
@@ -88,12 +93,13 @@ export default function Tile({
       $displayAlt={alt}
       onClick={onClick}
       onSubmit={onSubmit}
+      className={className}
     >
       {children}
       <StyledTileImage $src={src} />
       <StyledTileLabel>
         {label ? <p className="main-label">{label}</p> : <></>}
-        {alt ? <p className="alt-label">{alt}</p> : <></>}
+        {alt || label ? <p className="alt-label">{alt || label}</p> : <></>}
       </StyledTileLabel>
     </StyledTile>
   );
