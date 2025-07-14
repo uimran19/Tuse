@@ -75,10 +75,45 @@ const Canvas = () => {
     stage.position(newPos);
   };
 
+  const handleTouchStart = (e) => {
+    const stage = stageRef.current;
+    stage.draggable(false);
+
+    isDrawing.current = true;
+    const pointer = stage.getPointerPosition();
+    const pos = {
+      x: (pointer.x - stage.x()) / stage.scaleX(),
+      y: (pointer.y - stage.y()) / stage.scaleY(),
+    };
+    setLiveLine({
+      canvas_id,
+      tool,
+      points: [pos.x, pos.y],
+      socketIdRef,
+      strokeWidth,
+      colour,
+    });
+  };
+
   const handleTouchMove = (e) => {
     e.evt.preventDefault();
-    handleMouseMove;
+    isDrawing.current = true;
+
+    const stage = stageRef.current;
+    const pointer = stage.getPointerPosition();
+
+    const pos = {
+      x: (pointer.x - stage.x()) / stage.scaleX(),
+      y: (pointer.y - stage.y()) / stage.scaleY(),
+    };
+
+    setLiveLine({
+      ...liveLine,
+      points: [...liveLine.points, pos.x, pos.y],
+    });
   };
+
+  // const h
 
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
@@ -175,7 +210,7 @@ const Canvas = () => {
           onMouseDown={handleMouseDown}
           onMousemove={handleMouseMove}
           onMouseup={handleMouseUp}
-          onTouchStart={handleMouseDown}
+          onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleMouseUp}
           onWheel={handleWheelScroll}
