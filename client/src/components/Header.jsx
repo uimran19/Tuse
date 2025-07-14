@@ -49,6 +49,11 @@ const StyledJoinRoomForm = styled(JoinRoomForm)`
   & label {
     display: none;
   }
+
+  & input {
+    background-color: var(--canvas-color);
+    color: var(--text-color-dark);
+  }
 `;
 
 export default function Header() {
