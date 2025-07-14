@@ -2,7 +2,7 @@ const express = require("express");
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const getTodaysInspiration = require("./controllers/getTodaysInspiration");
+const getInspiration = require("./controllers/getInspiration");
 const app = express();
 const server = createServer(app);
 

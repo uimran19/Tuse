@@ -4,13 +4,12 @@ import Tile from "./Tile";
 import { useEffect, useState } from "react";
 
 export default function InspirationTile({ date, label }) {
-  // const [inspiration, setInspiration] = useState({});
+  const [inspiration, setInspiration] = useState({});
 
   useEffect(() => {
-    let {
-      inspiration: { thumbnailUrl, label, artist_title },
-    } = getInspirationMetaData(date);
-    setInspiration(inspiration);
+    getInspirationMetaData(date).then(({ inspiration }) => {
+      setInspiration(inspiration);
+    });
   }, []);
 
   // const testMetaData = {
@@ -23,14 +22,12 @@ export default function InspirationTile({ date, label }) {
   //   },
   // };
   let {
-    inspiration: {
-      title = null,
-      artist = null,
-      medium = null,
-      thumbnailUrl = null,
-      imageUrl = null,
-    },
-  } = testMetaData;
+    title = null,
+    artist = null,
+    medium = null,
+    thumbnailUrl = null,
+    imageUrl = null,
+  } = inspiration;
 
   return (
     <Tile src={thumbnailUrl} label={label}>

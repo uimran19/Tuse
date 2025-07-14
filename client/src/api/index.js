@@ -1,11 +1,10 @@
 function makeFetch(path, options = undefined) {
-  const baseUrl = "";
+  const baseUrl = "https://tuse.onrender.com/";
   return fetch(`${baseUrl}${path}`, options)
     .then((res) => {
       return res.json();
     })
     .then((res) => {
-      // console.log(res);
       return res;
     })
     .catch((err) => console.log(err));
@@ -13,7 +12,5 @@ function makeFetch(path, options = undefined) {
 
 export function getInspirationMetaData(date) {
   const path = `inspiration/${date}`;
-  return makeFetch(path).then(({ metadata }) => {
-    return metadata;
-  });
+  return makeFetch(path);
 }
