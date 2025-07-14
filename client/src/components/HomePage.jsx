@@ -4,6 +4,7 @@ import Tile from "./Tile";
 import { getNDates } from "../../utils";
 import InspirationTile from "./InspirationTile";
 import NewCanvasTile from "./NewCanvasTile";
+import JoinRoomTile from "./JoinRoomTile";
 
 const StyledHomePage = styled.main`
   width: 100%;
@@ -28,6 +29,7 @@ export default function HomePage() {
       <TileRow>
         <Tile url="" label="Jump back in" alt="2000-01-01" />
         <NewCanvasTile />
+        <JoinRoomTile />
         <InspirationTile date={last7Dates[0][1]} label="Today's inspiration" />
       </TileRow>
       <StyledDivider>Previous Daily Inspirations</StyledDivider>

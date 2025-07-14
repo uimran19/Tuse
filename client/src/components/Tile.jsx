@@ -69,11 +69,27 @@ const StyledTileLabel = styled.label`
   box-shadow: 0 0 5px 5px var(--label-background-color);
 `;
 
-export default function Tile({ url, src, label, alt, onClick }) {
+export default function Tile({
+  children,
+  as,
+  url,
+  src,
+  label,
+  alt,
+  onClick,
+  onSubmit,
+}) {
   const navigate = useNavigate();
 
   return (
-    <StyledTile $displayLabel={label} $displayAlt={alt} onClick={onClick}>
+    <StyledTile
+      as={as}
+      $displayLabel={label}
+      $displayAlt={alt}
+      onClick={onClick}
+      onSubmit={onSubmit}
+    >
+      {children}
       <StyledTileImage $src={src} />
       <StyledTileLabel>
         {label ? <p className="main-label">{label}</p> : <></>}
