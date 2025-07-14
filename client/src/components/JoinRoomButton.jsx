@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 const JoinRoomButton = () => {
   const roomIdRef = useRef();
+  const [regex, setRegex] = useState("[0-9a-fA-F]{4}-[0-9a-fA-F]{4}");
 
   const handleJoinSubmit = (e) => {
     e.preventDefault();
@@ -14,10 +15,16 @@ const JoinRoomButton = () => {
 
   return (
     <>
-      <form>
+      <form onSubmit={handleJoinSubmit}>
         <label htmlFor="">Room ID: </label>
-        <input ref={roomIdRef} />
-        <button onClick={handleJoinSubmit}>Join</button>
+        <input
+          ref={roomIdRef}
+          required
+          pattern={regex}
+          title="Valid room ID format: XXXX-XXXX"
+        />
+        {/* <button onClick={handleJoinSubmit}>Join</button> */}
+        <button type="submit">Join</button>
       </form>
     </>
   );
