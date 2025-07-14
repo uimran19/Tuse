@@ -6,6 +6,7 @@ import InspirationTile from "./InspirationTile";
 
 const StyledHomePage = styled.main`
   width: 100%;
+  background-color: var(--page-color);
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -23,15 +24,15 @@ export default function HomePage() {
   return (
     <StyledHomePage>
       <TileRow>
-        <Tile url="" />
+        <Tile url="" label="Jump back in" />
+        <Tile label="Start a new canvas" />
         <Tile></Tile>
-        <Tile></Tile>
-        <InspirationTile date={last7Dates[0][1]} />
+        <InspirationTile date={last7Dates[0][1]} label="Today's inspiration" />
       </TileRow>
       <StyledDivider>Previous Daily Inspirations</StyledDivider>
       <TileRow>
         {last7Dates.slice(1).map(([, date]) => {
-          return <InspirationTile date={date} />;
+          return <InspirationTile key={date} date={date} />;
         })}
       </TileRow>
     </StyledHomePage>

@@ -3,8 +3,8 @@ import { getInspirationMetaData } from "../api";
 import Tile from "./Tile";
 import { useEffect, useState } from "react";
 
-export default function InspirationTile({ date }) {
-  const [inspiration, setInspiration] = useState({});
+export default function InspirationTile({ date, label }) {
+  // const [inspiration, setInspiration] = useState({});
 
   useEffect(() => {
     let {
@@ -13,20 +13,30 @@ export default function InspirationTile({ date }) {
     setInspiration(inspiration);
   }, []);
 
-  const testMetaData = {
-    thumbnailUrl:
-      "https://www.artic.edu/iiif/2/25c31d8d-21a4-9ea1-1d73-6a2eca4dda7e/full/400,/0/default.jpg",
-    label: "The Bedroom",
-    artist_title: "Vincent Van Gogh",
-  };
+  // const testMetaData = {
+  //   inspiration: {
+  //     thumbnailUrl:
+  //       "https://www.artic.edu/iiif/2/25c31d8d-21a4-9ea1-1d73-6a2eca4dda7e/full/400,/0/default.jpg",
+  //     title: "The Bedroom",
+  //     artist: "Vincent Van Gogh",
+  //     medium: "oil on canvas",
+  //   },
+  // };
   let {
-    inspiration: { thumbnailUrl, label, artist_title },
+    inspiration: {
+      title = null,
+      artist = null,
+      medium = null,
+      thumbnailUrl = null,
+      imageUrl = null,
+    },
   } = testMetaData;
 
   return (
-    <Tile src={thumbnailUrl}>
-      {label}
-      {artist_title}
+    <Tile src={thumbnailUrl} label={label}>
+      {title}
+      {artist}
+      {medium}
     </Tile>
   );
 }

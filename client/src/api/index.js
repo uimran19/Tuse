@@ -12,8 +12,8 @@ function makeFetch(path, options = undefined) {
 }
 
 export function getInspirationMetaData(date) {
-  //   const path = `inspiration/${date}`;
-  //   return makeFetch(path).then(({ metadata }) => {
-  //     return metadata;
-  //   });
+  const path = `inspiration/${date}`;
+  return makeFetch(path).then(({ metadata }) => {
+    return metadata;
+  });
 }
