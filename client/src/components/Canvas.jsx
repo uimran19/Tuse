@@ -41,7 +41,8 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
-      if (newLine.socketIdRef !== socketIdRef) {
+      console.log(newLine.socketIdRef.current);
+      if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
     });
