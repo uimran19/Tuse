@@ -2,9 +2,6 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { hoverLiftStyling } from "./classes";
 
-const tileStyling = `
-`;
-
 const StyledTile = styled.button`
   --tile-size: 15rem;
   display: flex;
@@ -47,19 +44,6 @@ const StyledTile = styled.button`
     display: block;
   }
 `;
-//   background-color: var(--canvas-color);
-//   color: var(--alt-color);
-//   width: var(--tile-size);
-//   position: relative;
-//   top: calc(0rem - var(--tile-size));
-//   pointer-events: none;
-//   width: 100%;
-//   height: 100%;
-
-//   & * {
-//     background-color: white;
-//   }
-// `;
 
 const StyledTileImage = styled.img`
   ${(props) =>
