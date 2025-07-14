@@ -83,6 +83,7 @@ const Canvas = () => {
     if (touches.length > 1) {
       stage.draggable(true);
       isDrawing.current = false;
+      // console.log(touches);
     } else {
       e.evt.preventDefault();
       isDrawing.current = true;
@@ -104,9 +105,8 @@ const Canvas = () => {
 
   const handleTouchMove = (e) => {
     e.evt.preventDefault();
-
+    const stage = stageRef.current;
     if (isDrawing.current === true) {
-      const stage = stageRef.current;
       const pointer = stage.getPointerPosition();
 
       const pos = {
@@ -121,8 +121,6 @@ const Canvas = () => {
     }
   };
 
-  // const h
-
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
@@ -133,7 +131,6 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
-      console.log(newLine.socketIdRef.current);
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
