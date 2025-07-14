@@ -13,10 +13,8 @@ function App() {
     <>
       <Header />
       <Routes>
-        <Route path="/home" element={<Home />}></Route>
-        <Route path="/canvas/:canvas_id" element={<Canvas />}></Route>
-
         <Route path="/" element={<HomePage />} />
+        <Route path="/canvas/:canvas_id" element={<Canvas />}></Route>
       </Routes>
     </>
   );
