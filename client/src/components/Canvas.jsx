@@ -6,7 +6,8 @@ import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
 
 const Canvas = () => {
-  const { canvas_id } = useParams();
+  let params = useParams();
+  let canvas_id = params.canvas_id.toLowerCase();
   const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
   const [liveLine, setLiveLine] = React.useState(null);
