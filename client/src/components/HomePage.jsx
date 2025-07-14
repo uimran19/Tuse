@@ -33,13 +33,11 @@ export default function HomePage() {
 
   return (
     <>
-      {/* <Header /> */}
       <Background />
       <StyledHomePage>
         <TileRow>
           <Tile url="" label="Jump back in" alt="2000-01-01" />
           <NewCanvasTile />
-          {/* <JoinRoomTile /> */}
           <InspirationTile
             date={last7Dates[0][1]}
             label="Today's inspiration"
