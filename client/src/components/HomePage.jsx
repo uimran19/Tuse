@@ -16,15 +16,16 @@ const StyledHomePage = styled.main`
 
 const StyledDivider = styled.h2`
   width: 100%;
+  color: var(--text-color-dark);
 `;
 
 export default function HomePage() {
-  const last7Dates = getNDates(-7);
+  const last7Dates = getNDates(-5);
 
   return (
     <StyledHomePage>
       <TileRow>
-        <Tile url="" label="Jump back in" />
+        <Tile url="" label="Jump back in" alt="2000-01-01" />
         <Tile label="Start a new canvas" />
         <Tile></Tile>
         <InspirationTile date={last7Dates[0][1]} label="Today's inspiration" />

@@ -1,44 +1,65 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { hoverLiftStyling, peekOutStyling } from "./classes";
+import { hoverLiftStyling } from "./classes";
 
 const tileStyling = `
-  width: var(--tile-size);
-  padding: 0;
-  border: hidden;
 `;
 
 const StyledTile = styled.button`
   --tile-size: 15rem;
-  --label-color: var(--text-color-dark);
-  --label-background-color: rgba(from var(--canvas-color) r g b / 0.6);
-  --label-height: 1.5rem;
-  --alt-color: var(--text-color-dark);
+  display: flex;
   aspect-ratio: 1/1;
   margin: 0.5rem;
   user-select: none;
+  width: var(--tile-size);
+  padding: 0;
+  border: hidden;
+  justify-content: center;
+  align-items: center;
 
-  ${tileStyling}
+  --label-background-color: ${(props) =>
+    props.$displayLabel
+      ? "rgba(from var(--canvas-color) r g b / 0.6)"
+      : "transparent"};
+
+  &:hover {
+    --label-background-color: ${(props) =>
+      props.$displayAlt
+        ? "rgba(from var(--canvas-color) r g b / 0.6)"
+        : "transparent"};
+  }
+
+  ${hoverLiftStyling}
 
   & label p {
     line-height: 2em;
   }
-`;
 
-const StyledTileAlt = styled.label`
-  background-color: var(--canvas-color);
-  color: var(--alt-color);
-  width: var(--tile-size);
-  position: relative;
-  top: calc(0rem - var(--tile-size));
-  pointer-events: none;
-  width: 100%;
-  height: 100%;
+  & label .alt-label {
+    display: none;
+  }
 
-  & * {
-    background-color: white;
+  &:hover label .main-label {
+    display: none;
+  }
+
+  &:hover label .alt-label {
+    display: block;
   }
 `;
+//   background-color: var(--canvas-color);
+//   color: var(--alt-color);
+//   width: var(--tile-size);
+//   position: relative;
+//   top: calc(0rem - var(--tile-size));
+//   pointer-events: none;
+//   width: 100%;
+//   height: 100%;
+
+//   & * {
+//     background-color: white;
+//   }
+// `;
 
 const StyledTileImage = styled.img`
   ${(props) =>
@@ -48,42 +69,37 @@ const StyledTileImage = styled.img`
   height: 100%;
   width: 100%;
   border: none;
-
-  ${hoverLiftStyling}
-
-  &:hover ~ * {
-    transform: translate(50px, 50px);
-  }
+  background-color: black;
 `;
 
-const StyledTileLabel = styled.h3`
-  height: var(--label-height);
-  position: relative;
-  top: calc(0rem - (var(--label-height) + var(--tile-size)) / 2);
-  text-align: center;
-  margin: 0 auto;
+const StyledTileLabel = styled.label`
+  display: block;
+  white-space: pre-line;
+  position: absolute;
   border-radius: 0.5em;
-  width: min-contents;
+  width: max-content;
   max-width: 90%;
-  color: var(--label-color);
   pointer-events: none;
+  transition: all 235ms ease-in-out;
+  color: var(--text-color-dark);
   background-color: var(--label-background-color);
-  text-shadow: 0 0 5px 5px var(--label-background-color);
+  box-shadow: 0 0 5px 5px var(--label-background-color);
 `;
 
-export default function Tile({ children, url, src, label }) {
+export default function Tile({ url, src, label, alt }) {
   const navigate = useNavigate();
 
   return (
-    <StyledTile onClick={() => navigate(url)}>
+    <StyledTile
+      $displayLabel={label}
+      $displayAlt={alt}
+      onClick={() => navigate(url)}
+    >
       <StyledTileImage $src={src} />
-      <StyledTileLabel label={label}>{label}</StyledTileLabel>
-      <StyledTileAlt>
-        <h4>{children?.[0]}</h4>
-        {children?.slice(1)?.map((child, index) => {
-          return <p key={index}>{child}</p>;
-        })}
-      </StyledTileAlt>
+      <StyledTileLabel>
+        {label ? <p className="main-label">{label}</p> : <></>}
+        {alt ? <p className="alt-label">{alt}</p> : <></>}
+      </StyledTileLabel>
     </StyledTile>
   );
 }

@@ -20,10 +20,10 @@ export default function InspirationTile({ date, label }) {
   } = inspiration;
 
   return (
-    <Tile src={thumbnailUrl} label={label}>
-      {title}
-      {artist}
-      {medium}
-    </Tile>
+    <Tile
+      src={thumbnailUrl}
+      label={label}
+      alt={`${title}\n${artist}\n${medium}`}
+    />
   );
 }
