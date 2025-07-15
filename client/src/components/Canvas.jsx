@@ -4,7 +4,7 @@ import { socket } from "../socket";
 import Toolbar from "./Toolbar";
 import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
-import BrushStrokes from "./Testing/BrushStrokes";
+import BrushStrokes from "./BrushStrokes";
 
 const Canvas = () => {
   let params = useParams();
