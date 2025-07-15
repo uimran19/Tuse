@@ -20,7 +20,8 @@
     "react-konva": "^19.0.7",
     "react-router-dom": "^7.6.3",
     "socket.io-client": "^4.8.1",
-    "styled-components": "^6.1.19"
+    "styled-components": "^6.1.19",
+    "use-image": "^1.1.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

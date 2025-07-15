@@ -4,6 +4,7 @@ import { socket } from "../socket";
 import Toolbar from "./Toolbar";
 import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
+import TestLayer from "./Testing/TestLayer";
 
 const Canvas = () => {
   let params = useParams();
@@ -28,7 +29,7 @@ const Canvas = () => {
     console.log("Lines pre upload --> ", lines);
     const myData = lines;
     console.log(myData);
-    const fileName = "MyDrawing";
+    const fileName = "my-file";
     const json = JSON.stringify(myData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const href = URL.createObjectURL(blob);
@@ -61,7 +62,6 @@ const Canvas = () => {
   };
 
   const handleMouseDown = (e) => {
-    setRedoBuffer([]);
     const stage = stageRef.current;
 
     if (e.evt.button === 1) {
@@ -167,89 +167,9 @@ const Canvas = () => {
     }
   };
 
-  const [redoBuffer, setRedoBuffer] = useState([]);
-
-  const handleUndo = (e) => {
-    let lastUndo = [];
-    const newArr = [...lines];
-
-    for (let i = lines.length - 1; i >= 0; i--) {
-      if (
-        lines[i].socketIdRef.current === socketIdRef.current &&
-        newArr[i].points.length > 2
-      ) {
-        lastUndo = newArr[i];
-        setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
-        break;
-      }
-    }
-
-    console.log(redoBuffer);
-
-    setLines(newArr);
-
-    socket.emit("requestUndo", { canvas_id, socketIdRef });
-  };
-
-  const handleRedo = (e) => {
-    console.log(redoBuffer);
-    if (redoBuffer.length > 0) {
-      const liveBuffer = [...redoBuffer];
-      setLines((prevLines) => [...prevLines, liveBuffer[0]]);
-      setRedoBuffer(liveBuffer.slice(1));
-      socket.emit("drawing", liveBuffer[0]);
-    }
-  };
-
-  // const handleReceivedUndo = (data) => {
-  //   const newArr = [...lines];
-
-  //   for (let i = lines.length - 1; i >= 0; i--) {
-  //     if (
-  //       lines[i].socketIdRef.current === data.current &&
-  //       newArr[i].points.length > 2
-  //     ) {
-  //       newArr[i].points = [0, 0];
-
-  //       console.log(newArr);
-
-  //       return;
-  //     }
-  //   }
-  //   // setLines(newArr);
-
-  //   // setLines((prev) => {
-
-  //   // })
-  // };
-
-  // const handleReceivedUndo = (data) => {
-  //   // const newArr = [...lines];
-  //   setLines((prev) => {
-  //     const newArr = [...prev];
-  //     for (let i = prev.length - 1; i >= 0; i--) {
-  //       if (
-  //         prev[i].socketIdRef.current === data.current &&
-  //         newArr[i].points.length > 2
-  //       ) {
-  //         newArr[i].points = [0, 0];
-
-  //         console.log(newArr);
-
-  //         return;
-  //       }
-  //     }
-  //     // setLines(newArr);
-  //     return newArr;
-  //   });
-  // };
-
-  const [undoActivated, setUndoActivate] = useState(false);
-
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
-      console.log(lines);
     });
 
     socket.on("live-users", (currUsers) => {
@@ -257,14 +177,10 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
-      // console.log(newLine.socketIdRef.current);
+      console.log(newLine.socketIdRef.current);
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
-    });
-
-    socket.on("undoCommand", (data) => {
-      handleReceivedUndo(data.socketIdRef);
     });
 
     socket.on("connect", () => {
@@ -289,7 +205,7 @@ const Canvas = () => {
       socket.off("drawing");
       socket.off("initial-canvas");
     };
-  }, [undoActivated]);
+  }, []);
 
   const handleMouseMove = (e) => {
     if (!isDrawing.current) {
@@ -340,8 +256,6 @@ const Canvas = () => {
         <button onClick={handleExport}>Download</button>
         <button onClick={downloadFile}>Download Editable</button>
         <input type="file" onChange={setCanvasWithFile} />
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
 
         <Toolbar
           tool={tool}
@@ -365,6 +279,7 @@ const Canvas = () => {
           ref={stageRef}
           draggable
         >
+          <TestLayer />
           <Layer>
             {lines &&
               lines.map((line, i) => (
