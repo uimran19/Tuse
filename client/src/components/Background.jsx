@@ -18,7 +18,13 @@ const StyledBackground = styled.div`
   width: 100%;
   height: 100%;
   min-height: 100vh;
-  background-color: var(--page-color);
+  --shadow-color: hsl(from var(--page-color) h 30 60);
+  background: linear-gradient(
+    to bottom right,
+    var(--shadow-color),
+    var(--page-color) 35% 65%,
+    var(--shadow-color)
+  );
 `;
 
 export default function Background() {
