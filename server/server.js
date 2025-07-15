@@ -3,8 +3,6 @@ const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
-
-
 const getInspiration = require("./controllers/getInspiration");
 
 const app = express();
@@ -22,7 +20,6 @@ app.get("/inspiration/:date", (req, res, next) => {
   getInspiration(req, res, next);
 });
 
-
 const io = new Server(server, {
   cors: {
     origin: [
@@ -33,7 +30,7 @@ const io = new Server(server, {
   },
 });
 
-const liveUsers = new Set(); // Confirm if needed
+const liveUsers = new Set();
 
 const knownRooms = ["1234-abcd", "5678-abcd", "7890-abcd"]; // temp room for test purposes
 const knownCanvases = {};
@@ -84,6 +81,28 @@ io.on("connection", (socket) => {
 
     knownCanvases[data.canvas_id].push(data);
     io.to(data.canvas_id).emit("drawing", data);
+  });
+
+  socket.on("requestUndo", (data) => {
+    //delete local
+
+    for (let i = knownCanvases[data.canvas_id].length - 1; i >= 0; i--) {
+      if (
+        knownCanvases[data.canvas_id][i].socketIdRef.current ===
+          data.socketIdRef.current &&
+        knownCanvases[data.canvas_id][i].points.length > 2
+      ) {
+        knownCanvases[data.canvas_id][i].points = [0, 0];
+
+        break;
+      }
+    }
+
+    console.log(data);
+
+    // io.to(data.canvas_id).emit("undoCommand", data);
+
+    io.to(data.canvas_id).emit("initial-canvas", knownCanvases[data.canvas_id]);
   });
 
   socket.on("disconnect", () => {

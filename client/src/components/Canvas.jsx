@@ -28,7 +28,7 @@ const Canvas = () => {
     console.log("Lines pre upload --> ", lines);
     const myData = lines;
     console.log(myData);
-    const fileName = "my-file";
+    const fileName = "MyDrawing";
     const json = JSON.stringify(myData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const href = URL.createObjectURL(blob);
@@ -166,9 +166,88 @@ const Canvas = () => {
     }
   };
 
+  //delete last element with the client's socket_id in the local lines
+  //Emit request to delete the last input with the user's socket id
+  //delete this element from the server-side storage
+  //emit a request to delete this item from other user's storage
+
+  const [redoBuffer, setRedoBuffer] = useState([]);
+
+  const handleUndo = (e) => {
+    // const holdingVar = [];
+    const newArr = [...lines];
+    console.log(newArr);
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (
+        lines[i].socketIdRef.current === socketIdRef.current &&
+        newArr[i].points.length > 2
+      ) {
+        // holdingVar.unshift(lines[i]);
+
+        newArr[i].points = [0, 0];
+
+        console.log(newArr);
+
+        break;
+      }
+    }
+    // setRedoBuffer(holdingVar);
+    // console.log(redoBuffer);
+    setLines(newArr);
+    console.log(lines);
+
+    socket.emit("requestUndo", { canvas_id, socketIdRef });
+  };
+
+  // const handleReceivedUndo = (data) => {
+  //   const newArr = [...lines];
+
+  //   for (let i = lines.length - 1; i >= 0; i--) {
+  //     if (
+  //       lines[i].socketIdRef.current === data.current &&
+  //       newArr[i].points.length > 2
+  //     ) {
+  //       newArr[i].points = [0, 0];
+
+  //       console.log(newArr);
+
+  //       return;
+  //     }
+  //   }
+  //   // setLines(newArr);
+
+  //   // setLines((prev) => {
+
+  //   // })
+  // };
+
+  // const handleReceivedUndo = (data) => {
+  //   // const newArr = [...lines];
+  //   setLines((prev) => {
+  //     const newArr = [...prev];
+  //     for (let i = prev.length - 1; i >= 0; i--) {
+  //       if (
+  //         prev[i].socketIdRef.current === data.current &&
+  //         newArr[i].points.length > 2
+  //       ) {
+  //         newArr[i].points = [0, 0];
+
+  //         console.log(newArr);
+
+  //         return;
+  //       }
+  //     }
+  //     // setLines(newArr);
+  //     return newArr;
+  //   });
+  // };
+
+  const handleRedo = (e) => {};
+
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
+      console.log(lines);
     });
 
     socket.on("live-users", (currUsers) => {
@@ -176,11 +255,36 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
-      console.log(newLine.socketIdRef.current);
+      // console.log(newLine.socketIdRef.current);
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
     });
+
+    socket.on("undoCommand", (data) => {
+      handleReceivedUndo(data.socketIdRef);
+      // console.log(data.socketIdRef);
+    });
+
+    // socket.on("undoCommand", (data) => {
+    //   const newArr = [...lines];
+    //   console.log(lines);
+    //   for (let i = lines.length - 1; i >= 0; i--) {
+    //     if (
+    //       lines[i].socketIdRef === data.socketIdRef &&
+    //       newArr[i].points.length > 2
+    //     ) {
+    //       newArr[i].points = [0, 0];
+
+    //       console.log(newArr);
+
+    //       break;
+    //     }
+    //   }
+
+    //   console.log(newArr);
+    //   setLines(newArr);
+    // });
 
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
@@ -228,6 +332,7 @@ const Canvas = () => {
     isDrawing.current = false;
 
     if (liveLine && liveLine.points.length > 0) {
+      // console.log(liveLine);
       socket.emit("drawing", liveLine);
       setLines((prevLines) => [...prevLines, liveLine]);
     }
@@ -255,6 +360,8 @@ const Canvas = () => {
         <button onClick={handleExport}>Download</button>
         <button onClick={downloadFile}>Download Editable</button>
         <input type="file" onChange={setCanvasWithFile} />
+        <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleRedo}>Redo</button>
 
         <Toolbar
           tool={tool}
