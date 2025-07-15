@@ -174,29 +174,39 @@ const Canvas = () => {
   const [redoBuffer, setRedoBuffer] = useState([]);
 
   const handleUndo = (e) => {
-    // const holdingVar = [];
+    // const liveBuffer = [...redoBuffer];
+    let lastUndo = [];
     const newArr = [...lines];
-    console.log(newArr);
+
     for (let i = lines.length - 1; i >= 0; i--) {
       if (
         lines[i].socketIdRef.current === socketIdRef.current &&
         newArr[i].points.length > 2
       ) {
-        // holdingVar.unshift(lines[i]);
-
-        newArr[i].points = [0, 0];
-
-        console.log(newArr);
+        // liveBuffer.push(newArr[i]);
+        lastUndo = newArr[i];
+        setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+        // newArr[i].points = [0, 0];
 
         break;
       }
     }
-    // setRedoBuffer(holdingVar);
-    // console.log(redoBuffer);
+
+    console.log(redoBuffer);
+
     setLines(newArr);
-    console.log(lines);
 
     socket.emit("requestUndo", { canvas_id, socketIdRef });
+  };
+
+  const handleRedo = (e) => {
+    // console.log(redoBuffer);
+    if (redoBuffer.length > 0) {
+      const liveBuffer = [...redoBuffer];
+      setLines((prevLines) => [...prevLines, liveBuffer[0]]);
+      liveBuffer.shift();
+      setRedoBuffer(liveBuffer);
+    }
   };
 
   // const handleReceivedUndo = (data) => {
@@ -242,9 +252,40 @@ const Canvas = () => {
   //   });
   // };
 
-  const handleRedo = (e) => {};
+  const [undoActivated, setUndoActivate] = useState(false);
 
   useEffect(() => {
+    // const handleUndo = (e) => {
+    //   // const liveBuffer = [...redoBuffer];
+    //   const newArr = [...lines];
+    //   let lastUndo = [];
+    //   for (let i = lines.length - 1; i >= 0; i--) {
+    //     if (
+    //       lines[i].socketIdRef.current === socketIdRef.current &&
+    //       newArr[i].points.length > 2
+    //     ) {
+    //       // liveBuffer.push(newArr[i]);
+    //       lastUndo = newArr[i];
+    //       setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+    //       newArr[i].points = [0, 0];
+
+    //       break;
+    //     }
+    //   }
+
+    //   console.log(redoBuffer);
+
+    //   setLines(newArr);
+
+    //   socket.emit("requestUndo", { canvas_id, socketIdRef });
+
+    //   setUndoActivate(false);
+    // };
+
+    // if (undoActivated === true) {
+    //   handleUndo();
+    // }
+
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
       console.log(lines);
@@ -308,7 +349,7 @@ const Canvas = () => {
       socket.off("drawing");
       socket.off("initial-canvas");
     };
-  }, []);
+  }, [undoActivated]);
 
   const handleMouseMove = (e) => {
     if (!isDrawing.current) {

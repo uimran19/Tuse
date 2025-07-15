@@ -72,6 +72,7 @@ io.on("connection", (socket) => {
 
   socket.on("get-initial-canvas", (roomId) => {
     socket.emit("initial-canvas", knownCanvases[roomId]);
+    console.log(knownCanvases);
   });
 
   liveUsers.add(socket.id);
@@ -102,7 +103,9 @@ io.on("connection", (socket) => {
 
     // io.to(data.canvas_id).emit("undoCommand", data);
 
-    io.to(data.canvas_id).emit("initial-canvas", knownCanvases[data.canvas_id]);
+    // io.to(data.canvas_id).emit("initial-canvas", knownCanvases[data.canvas_id]);
+
+    io.emit("initial-canvas", knownCanvases[data.canvas_id]);
   });
 
   socket.on("disconnect", () => {
