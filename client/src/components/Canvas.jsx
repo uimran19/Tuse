@@ -91,36 +91,6 @@ const Canvas = () => {
     }
   };
 
-  const handleWheelScroll = (e) => {
-    e.evt.preventDefault();
-    const stage = stageRef.current;
-    const oldScale = stage.scaleX();
-    const pointer = stage.getPointerPosition();
-
-    const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
-    };
-
-    let direction = e.evt.deltaY > 0 ? 1 : -1;
-
-    if (e.evt.ctrlKey) {
-      direction = -direction;
-    }
-
-    const scaleBy = 1.2;
-    const newScale = direction < 0 ? oldScale * scaleBy : oldScale / scaleBy;
-
-    stage.scale({ x: newScale, y: newScale });
-
-    const newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
-    };
-
-    stage.position(newPos);
-  };
-
   const handleTouchStart = (e) => {
     const stage = stageRef.current;
     stage.draggable(false);
@@ -234,6 +204,70 @@ const Canvas = () => {
     }
   };
 
+  const handleWheelScroll = (e) => {
+    e.evt.preventDefault();
+    const stage = stageRef.current;
+    const oldScale = stage.scaleX();
+    const pointer = stage.getPointerPosition();
+
+    const mousePointTo = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+
+    let direction = e.evt.deltaY > 0 ? 1 : -1;
+
+    if (e.evt.ctrlKey) {
+      direction = -direction;
+    }
+
+    const scaleBy = 1.2;
+    const newScale = direction < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    stage.scale({ x: newScale, y: newScale });
+
+    const newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
+
+    stage.position(newPos);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDrawing.current) {
+      return;
+    }
+    const stage = stageRef.current;
+    const oldScale = stage.scaleX();
+    const pointer = stage.getPointerPosition();
+
+    const pos = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+
+    setLiveLine({
+      ...liveLine,
+      points: [...liveLine.points, pos.x, pos.y],
+    });
+  };
+
+  const handleMouseUp = () => {
+    isDrawing.current = false;
+
+    lastCenter.current = null;
+    lastDist.current = 0;
+
+    if (liveLine && liveLine.points.length > 0) {
+      socket.emit("drawing", liveLine);
+      setLines((prevLines) => [...prevLines, liveLine]);
+    }
+    requestAnimationFrame(() => {
+      setLiveLine(null);
+    });
+  };
+
   useEffect(() => {
     const stage = stageRef.current;
     if (stage) {
@@ -277,49 +311,6 @@ const Canvas = () => {
     }
   };
 
-  // const handleReceivedUndo = (data) => {
-  //   const newArr = [...lines];
-
-  //   for (let i = lines.length - 1; i >= 0; i--) {
-  //     if (
-  //       lines[i].socketIdRef.current === data.current &&
-  //       newArr[i].points.length > 2
-  //     ) {
-  //       newArr[i].points = [0, 0];
-
-  //       console.log(newArr);
-
-  //       return;
-  //     }
-  //   }
-  //   // setLines(newArr);
-
-  //   // setLines((prev) => {
-
-  //   // })
-  // };
-
-  // const handleReceivedUndo = (data) => {
-  //   // const newArr = [...lines];
-  //   setLines((prev) => {
-  //     const newArr = [...prev];
-  //     for (let i = prev.length - 1; i >= 0; i--) {
-  //       if (
-  //         prev[i].socketIdRef.current === data.current &&
-  //         newArr[i].points.length > 2
-  //       ) {
-  //         newArr[i].points = [0, 0];
-
-  //         console.log(newArr);
-
-  //         return;
-  //       }
-  //     }
-  //     // setLines(newArr);
-  //     return newArr;
-  //   });
-  // };
-
   const [undoActivated, setUndoActivate] = useState(false);
 
   useEffect(() => {
@@ -333,7 +324,6 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
-      // console.log(newLine.socketIdRef.current);
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
@@ -366,39 +356,6 @@ const Canvas = () => {
       socket.off("initial-canvas");
     };
   }, [undoActivated]);
-
-  const handleMouseMove = (e) => {
-    if (!isDrawing.current) {
-      return;
-    }
-    const stage = stageRef.current;
-    const pointer = stage.getPointerPosition();
-
-    const pos = {
-      x: (pointer.x - stagePos.x) / stageScale.x,
-      y: (pointer.y - stagePos.y) / stageScale.y,
-    };
-
-    setLiveLine({
-      ...liveLine,
-      points: [...liveLine.points, pos.x, pos.y],
-    });
-  };
-
-  const handleMouseUp = () => {
-    isDrawing.current = false;
-
-    lastCenter.current = null;
-    lastDist.current = 0;
-
-    if (liveLine && liveLine.points.length > 0) {
-      socket.emit("drawing", liveLine);
-      setLines((prevLines) => [...prevLines, liveLine]);
-    }
-    requestAnimationFrame(() => {
-      setLiveLine(null);
-    });
-  };
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
