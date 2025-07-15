@@ -279,7 +279,7 @@ const Canvas = () => {
           ref={stageRef}
           draggable
         >
-          <TestLayer />
+          <TestLayer lines={lines} liveLine={liveLine} />
           <Layer>
             {lines &&
               lines.map((line, i) => (
