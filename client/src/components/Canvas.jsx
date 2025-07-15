@@ -250,6 +250,25 @@ const Canvas = () => {
     document.body.removeChild(link);
   };
 
+  function TuseLine({ line }) {
+    return (
+      <Line
+        points={line.points}
+        stroke={line.colour}
+        strokeWidth={line.strokeWidth}
+        opacity={
+          line.tool === "eraser" ? 1 : line.tool === "brush" ? 0 : line.opacity
+        }
+        tension={0.5}
+        lineCap="round"
+        lineJoin="round"
+        globalCompositeOperation={
+          line.tool === "eraser" ? "destination-out" : "source-over"
+        }
+      />
+    );
+  }
+
   if (isValidRoom)
     return (
       <div>
@@ -281,36 +300,8 @@ const Canvas = () => {
         >
           <TestLayer lines={lines} liveLine={liveLine} />
           <Layer>
-            {lines &&
-              lines.map((line, i) => (
-                <Line
-                  key={i}
-                  points={line.points}
-                  stroke={line.colour}
-                  strokeWidth={line.strokeWidth}
-                  opacity={line.tool === "eraser" ? 1 : line.opacity}
-                  tension={0.5}
-                  lineCap="round"
-                  lineJoin="round"
-                  globalCompositeOperation={
-                    line.tool === "eraser" ? "destination-out" : "source-over"
-                  }
-                />
-              ))}
-            {liveLine && (
-              <Line
-                points={liveLine.points}
-                stroke={liveLine.colour}
-                strokeWidth={liveLine.strokeWidth}
-                opacity={liveLine.tool === "eraser" ? 1 : liveLine.opacity}
-                tension={0.5}
-                lineCap="round"
-                lineJoin="round"
-                globalCompositeOperation={
-                  liveLine.tool === "eraser" ? "destination-out" : "source-over"
-                }
-              />
-            )}
+            {lines && lines.map((line, i) => <TuseLine key={i} line={line} />)}
+            {liveLine && <TuseLine line={liveLine} />}
           </Layer>
         </Stage>
       </div>

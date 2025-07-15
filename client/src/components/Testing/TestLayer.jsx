@@ -8,8 +8,11 @@ export default function TestLayer({ lines, liveLine }) {
   const scale = 5;
 
   function drawLines(lines) {
-    if (lines?.[0]?.points) {
-      return lines.map((line, i) => {
+    const brushStrokes = lines.filter((line) => {
+      return line.tool === "brush";
+    });
+    if (brushStrokes?.[0]?.points) {
+      return brushStrokes.map((line, i) => {
         const points = line.points;
         const pointsGrouped = [];
         for (let i = 0; i < points.length; i += 2) {
