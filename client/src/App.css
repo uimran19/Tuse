@@ -6,6 +6,7 @@
   --canvas-color: var(--light-1);
   --text-color-dark: var(--dark);
   --text-color-light: var(--light-1);
+  --header-height: 4rem;
   margin: 0 auto;
   width: 100%;
   text-align: center;

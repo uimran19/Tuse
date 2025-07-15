@@ -1,48 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { hoverLiftStyling } from "./classes";
+import { tileStyling } from "./classes";
 
 const StyledTile = styled.button`
-  --tile-size: 15rem;
-  display: flex;
-  aspect-ratio: 1/1;
-  margin: 0.5rem;
-  user-select: none;
-  width: var(--tile-size);
-  padding: 0;
-  border: hidden;
-  justify-content: center;
-  align-items: center;
-
-  --label-background-color: ${(props) =>
-    props.$displayLabel
-      ? "rgba(from var(--canvas-color) r g b / 0.6)"
-      : "transparent"};
-
-  &:hover {
-    --label-background-color: ${(props) =>
-      props.$displayAlt
-        ? "rgba(from var(--canvas-color) r g b / 0.6)"
-        : "transparent"};
-  }
-
-  ${hoverLiftStyling}
-
-  & label p {
-    line-height: 2em;
-  }
-
-  & label .alt-label {
-    display: none;
-  }
-
-  &:hover label .main-label {
-    display: none;
-  }
-
-  &:hover label .alt-label {
-    display: block;
-  }
+  ${(props) => tileStyling(props)}
 `;
 
 const StyledTileImage = styled.img`
@@ -53,7 +14,6 @@ const StyledTileImage = styled.img`
   height: 100%;
   width: 100%;
   border: none;
-  background-color: black;
 `;
 
 const StyledTileLabel = styled.label`
@@ -63,26 +23,46 @@ const StyledTileLabel = styled.label`
   border-radius: 0.5em;
   width: max-content;
   max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
   pointer-events: none;
   transition: all 235ms ease-in-out;
   color: var(--text-color-dark);
   background-color: var(--label-background-color);
   box-shadow: 0 0 5px 5px var(--label-background-color);
+
+  & p {
+    margin: 0;
+  }
 `;
 
-export default function Tile({ url, src, label, alt }) {
+export default function Tile({
+  children,
+  as,
+  url,
+  src,
+  label,
+  alt,
+  onClick,
+  onSubmit,
+  className,
+}) {
   const navigate = useNavigate();
 
   return (
     <StyledTile
+      as={as}
       $displayLabel={label}
       $displayAlt={alt}
-      onClick={() => navigate(url)}
+      onClick={onClick}
+      onSubmit={onSubmit}
+      className={className}
     >
+      {children}
       <StyledTileImage $src={src} />
       <StyledTileLabel>
         {label ? <p className="main-label">{label}</p> : <></>}
-        {alt ? <p className="alt-label">{alt}</p> : <></>}
+        {alt || label ? <p className="alt-label">{alt || label}</p> : <></>}
       </StyledTileLabel>
     </StyledTile>
   );
