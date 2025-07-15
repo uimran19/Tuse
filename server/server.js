@@ -101,10 +101,6 @@ io.on("connection", (socket) => {
 
     console.log(data);
 
-    // io.to(data.canvas_id).emit("undoCommand", data);
-
-    // io.to(data.canvas_id).emit("initial-canvas", knownCanvases[data.canvas_id]);
-
     io.emit("initial-canvas", knownCanvases[data.canvas_id]);
   });
 

@@ -61,6 +61,7 @@ const Canvas = () => {
   };
 
   const handleMouseDown = (e) => {
+    setRedoBuffer([]);
     const stage = stageRef.current;
 
     if (e.evt.button === 1) {
@@ -166,15 +167,9 @@ const Canvas = () => {
     }
   };
 
-  //delete last element with the client's socket_id in the local lines
-  //Emit request to delete the last input with the user's socket id
-  //delete this element from the server-side storage
-  //emit a request to delete this item from other user's storage
-
   const [redoBuffer, setRedoBuffer] = useState([]);
 
   const handleUndo = (e) => {
-    // const liveBuffer = [...redoBuffer];
     let lastUndo = [];
     const newArr = [...lines];
 
@@ -183,11 +178,8 @@ const Canvas = () => {
         lines[i].socketIdRef.current === socketIdRef.current &&
         newArr[i].points.length > 2
       ) {
-        // liveBuffer.push(newArr[i]);
         lastUndo = newArr[i];
         setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
-        // newArr[i].points = [0, 0];
-
         break;
       }
     }
@@ -200,12 +192,12 @@ const Canvas = () => {
   };
 
   const handleRedo = (e) => {
-    // console.log(redoBuffer);
+    console.log(redoBuffer);
     if (redoBuffer.length > 0) {
       const liveBuffer = [...redoBuffer];
       setLines((prevLines) => [...prevLines, liveBuffer[0]]);
-      liveBuffer.shift();
-      setRedoBuffer(liveBuffer);
+      setRedoBuffer(liveBuffer.slice(1));
+      socket.emit("drawing", liveBuffer[0]);
     }
   };
 
@@ -255,37 +247,6 @@ const Canvas = () => {
   const [undoActivated, setUndoActivate] = useState(false);
 
   useEffect(() => {
-    // const handleUndo = (e) => {
-    //   // const liveBuffer = [...redoBuffer];
-    //   const newArr = [...lines];
-    //   let lastUndo = [];
-    //   for (let i = lines.length - 1; i >= 0; i--) {
-    //     if (
-    //       lines[i].socketIdRef.current === socketIdRef.current &&
-    //       newArr[i].points.length > 2
-    //     ) {
-    //       // liveBuffer.push(newArr[i]);
-    //       lastUndo = newArr[i];
-    //       setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
-    //       newArr[i].points = [0, 0];
-
-    //       break;
-    //     }
-    //   }
-
-    //   console.log(redoBuffer);
-
-    //   setLines(newArr);
-
-    //   socket.emit("requestUndo", { canvas_id, socketIdRef });
-
-    //   setUndoActivate(false);
-    // };
-
-    // if (undoActivated === true) {
-    //   handleUndo();
-    // }
-
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
       console.log(lines);
@@ -304,28 +265,7 @@ const Canvas = () => {
 
     socket.on("undoCommand", (data) => {
       handleReceivedUndo(data.socketIdRef);
-      // console.log(data.socketIdRef);
     });
-
-    // socket.on("undoCommand", (data) => {
-    //   const newArr = [...lines];
-    //   console.log(lines);
-    //   for (let i = lines.length - 1; i >= 0; i--) {
-    //     if (
-    //       lines[i].socketIdRef === data.socketIdRef &&
-    //       newArr[i].points.length > 2
-    //     ) {
-    //       newArr[i].points = [0, 0];
-
-    //       console.log(newArr);
-
-    //       break;
-    //     }
-    //   }
-
-    //   console.log(newArr);
-    //   setLines(newArr);
-    // });
 
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
@@ -373,7 +313,6 @@ const Canvas = () => {
     isDrawing.current = false;
 
     if (liveLine && liveLine.points.length > 0) {
-      // console.log(liveLine);
       socket.emit("drawing", liveLine);
       setLines((prevLines) => [...prevLines, liveLine]);
     }
