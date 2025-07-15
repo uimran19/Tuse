@@ -6,7 +6,8 @@ import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
 
 const Canvas = () => {
-  const { canvas_id } = useParams();
+  let params = useParams();
+  let canvas_id = params.canvas_id.toLowerCase();
   const [tool, setTool] = React.useState("pen");
   const [lines, setLines] = React.useState([]);
   const [liveLine, setLiveLine] = React.useState(null);
@@ -14,12 +15,53 @@ const Canvas = () => {
   let socketIdRef = useRef("");
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
-  const [strokeWidth, setStrokeWidth] = useState(5);
+  const [strokeWidth, setStrokeWidth] = useState(1);
+  const [opacity, setOpacity] = useState(1);
   const [colour, setColour] = useState("#000000");
   const [isValidRoom, setIsValidRoom] = useState(true);
+  const [rectangles, setRectangles] = useState([]);
+  const [currentRect, setCurrentRect] = useState(null);
+
   Konva.dragButtons = [1];
 
+  const downloadFile = () => {
+    console.log("Lines pre upload --> ", lines);
+    const myData = lines;
+    console.log(myData);
+    const fileName = "MyDrawing";
+    const json = JSON.stringify(myData, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const href = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
+  const setCanvasWithFile = (e) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = (e) => {
+      const newLines = JSON.parse(e.target.result);
+      console.log(newLines);
+      const newestLines = newLines.map((line) => {
+        const newestLine = { ...line };
+        newestLine.canvas_id = canvas_id;
+        newestLine.socketIdRef = socketIdRef;
+        return newestLine;
+      });
+      console.log(newestLines);
+      setLines(newestLines);
+    };
+  };
+
   const handleMouseDown = (e) => {
+    setRedoBuffer([]);
     const stage = stageRef.current;
 
     if (e.evt.button === 1) {
@@ -34,6 +76,9 @@ const Canvas = () => {
         x: (pointer.x - stage.x()) / stage.scaleX(),
         y: (pointer.y - stage.y()) / stage.scaleY(),
       };
+      if (tool === "rectangle") {
+        setCurrentRect({});
+      }
       setLiveLine({
         canvas_id,
         tool,
@@ -41,6 +86,7 @@ const Canvas = () => {
         socketIdRef,
         strokeWidth,
         colour,
+        opacity,
       });
     }
   };
@@ -80,11 +126,9 @@ const Canvas = () => {
     stage.draggable(false);
     const touches = e.evt.touches;
 
-    if (touches.length === 2) {
-      e.evt.preventDefault();
+    if (touches.length > 1) {
       stage.draggable(true);
       isDrawing.current = false;
-      // console.log(touches);
     } else {
       e.evt.preventDefault();
       isDrawing.current = true;
@@ -104,10 +148,25 @@ const Canvas = () => {
     }
   };
 
+  const [lastCenter, setLastCenter] = useState(null);
+  const [lastDist, setLastDist] = useState(0);
+
+  const getDistance = (p1, p2) => {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+  };
+
+  const getCenter = (p1, p2) => {
+    return {
+      x: (p1.x + p2.x) / 2,
+      y: (p1.y + p2.y) / 2,
+    };
+  };
+
   const handleTouchMove = (e) => {
     e.evt.preventDefault();
-    const stage = stageRef.current;
+
     if (isDrawing.current === true) {
+      const stage = stageRef.current;
       const pointer = stage.getPointerPosition();
 
       const pos = {
@@ -119,12 +178,141 @@ const Canvas = () => {
         ...liveLine,
         points: [...liveLine.points, pos.x, pos.y],
       });
+    } else {
+      const touch1 = e.evt.touches[0];
+      const touch2 = e.evt.touches[1];
+      const stage = e.target.getStage();
+
+      if (!touch1 || !touch2) return;
+
+      const p1 = {
+        x: touch1.clientX,
+        y: touch1.clientY,
+      };
+      const p2 = {
+        x: touch2.clientX,
+        y: touch2.clientY,
+      };
+
+      if (!lastCenter) {
+        setLastCenter(getCenter(p1, p2));
+        return;
+      }
+      const newCenter = getCenter(p1, p2);
+
+      const dist = getDistance(p1, p2);
+
+      if (!lastDist) {
+        setLastDist(dist);
+        return;
+      }
+
+      const pointTo = {
+        x: (newCenter.x - stagePos.x) / stageScale.x,
+        y: (newCenter.y - stagePos.y) / stageScale.x,
+      };
+
+      const scale = stageScale.x * (dist / lastDist);
+
+      setStageScale({ x: scale, y: scale });
+
+      // calculate new position of the stage
+      const dx = newCenter.x - lastCenter.x;
+      const dy = newCenter.y - lastCenter.y;
+
+      setStagePos({
+        x: newCenter.x - pointTo.x * scale + dx,
+        y: newCenter.y - pointTo.y * scale + dy,
+      });
+
+      setLastDist(dist);
+      setLastCenter(newCenter);
     }
   };
+
+  const [redoBuffer, setRedoBuffer] = useState([]);
+
+  const handleUndo = (e) => {
+    let lastUndo = [];
+    const newArr = [...lines];
+
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (
+        lines[i].socketIdRef.current === socketIdRef.current &&
+        newArr[i].points.length > 2
+      ) {
+        lastUndo = newArr[i];
+        setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+        break;
+      }
+    }
+
+    console.log(redoBuffer);
+
+    setLines(newArr);
+
+    socket.emit("requestUndo", { canvas_id, socketIdRef });
+  };
+
+  const handleRedo = (e) => {
+    console.log(redoBuffer);
+    if (redoBuffer.length > 0) {
+      const liveBuffer = [...redoBuffer];
+      setLines((prevLines) => [...prevLines, liveBuffer[0]]);
+      setRedoBuffer(liveBuffer.slice(1));
+      socket.emit("drawing", liveBuffer[0]);
+    }
+  };
+
+  // const handleReceivedUndo = (data) => {
+  //   const newArr = [...lines];
+
+  //   for (let i = lines.length - 1; i >= 0; i--) {
+  //     if (
+  //       lines[i].socketIdRef.current === data.current &&
+  //       newArr[i].points.length > 2
+  //     ) {
+  //       newArr[i].points = [0, 0];
+
+  //       console.log(newArr);
+
+  //       return;
+  //     }
+  //   }
+  //   // setLines(newArr);
+
+  //   // setLines((prev) => {
+
+  //   // })
+  // };
+
+  // const handleReceivedUndo = (data) => {
+  //   // const newArr = [...lines];
+  //   setLines((prev) => {
+  //     const newArr = [...prev];
+  //     for (let i = prev.length - 1; i >= 0; i--) {
+  //       if (
+  //         prev[i].socketIdRef.current === data.current &&
+  //         newArr[i].points.length > 2
+  //       ) {
+  //         newArr[i].points = [0, 0];
+
+  //         console.log(newArr);
+
+  //         return;
+  //       }
+  //     }
+  //     // setLines(newArr);
+  //     return newArr;
+  //   });
+  // };
+
+  const [undoActivated, setUndoActivate] = useState(false);
 
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
+      console.log(lines);
     });
 
     socket.on("live-users", (currUsers) => {
@@ -132,9 +320,14 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
+      // console.log(newLine.socketIdRef.current);
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
+    });
+
+    socket.on("undoCommand", (data) => {
+      handleReceivedUndo(data.socketIdRef);
     });
 
     socket.on("connect", () => {
@@ -159,7 +352,7 @@ const Canvas = () => {
       socket.off("drawing");
       socket.off("initial-canvas");
     };
-  }, []);
+  }, [undoActivated]);
 
   const handleMouseMove = (e) => {
     if (!isDrawing.current) {
@@ -182,6 +375,8 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
 
+    setLastDist(0);
+    setLastCenter(null);
     if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
       setLines((prevLines) => [...prevLines, liveLine]);
@@ -190,6 +385,10 @@ const Canvas = () => {
       setLiveLine(null);
     });
   };
+
+  // const handleTouchEnd = () => {
+
+  // };
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
@@ -208,12 +407,19 @@ const Canvas = () => {
     return (
       <div>
         <button onClick={handleExport}>Download</button>
+        <button onClick={downloadFile}>Download Editable</button>
+        <input type="file" onChange={setCanvasWithFile} />
+        <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleRedo}>Redo</button>
 
         <Toolbar
           tool={tool}
           setTool={setTool}
           setStrokeWidth={setStrokeWidth}
+          strokeWidth={strokeWidth}
           setColour={setColour}
+          opacity={opacity}
+          setOpacity={setOpacity}
         />
         <Stage
           width={window.innerWidth}
@@ -236,6 +442,7 @@ const Canvas = () => {
                   points={line.points}
                   stroke={line.colour}
                   strokeWidth={line.strokeWidth}
+                  opacity={line.tool === "eraser" ? 1 : line.opacity}
                   tension={0.5}
                   lineCap="round"
                   lineJoin="round"
@@ -249,6 +456,7 @@ const Canvas = () => {
                 points={liveLine.points}
                 stroke={liveLine.colour}
                 strokeWidth={liveLine.strokeWidth}
+                opacity={liveLine.tool === "eraser" ? 1 : liveLine.opacity}
                 tension={0.5}
                 lineCap="round"
                 lineJoin="round"
