@@ -39,6 +39,8 @@ export default function TestLayer({ lines, liveLine }) {
               //   blue={rgb[2]}
               x={x}
               y={y}
+              offsetX={strokeWidth / 2}
+              offsetY={strokeWidth / 2}
             />
           );
         });
