@@ -1,8 +1,22 @@
 #root {
+  --light-1: #ece7e0;
+  --light-2: #dad1c3;
+  --dark: #171717ff;
+  --page-color: var(--light-2);
+  --canvas-color: var(--light-1);
+  --text-color-dark: var(--dark);
+  --text-color-light: var(--light-1);
+  --header-height: 4rem;
   margin: 0 auto;
+  width: 100%;
   text-align: center;
 }
 
+body {
+  margin: 0;
+}
+
+/* 
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -37,4 +51,4 @@
 
 .read-the-docs {
   color: #888;
-}
+} */

@@ -1,53 +1,68 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { tileStyling } from "./classes";
 
 const StyledTile = styled.button`
-  --tile-size: 15rem;
-  width: var(--tile-size);
-  aspect-ratio: 1/1;
-  background-color: white;
-  margin: 1rem;
-  padding: 0;
-  color: transparent;
-
-  &:hover {
-    color: white;
-  }
-  }
-`;
-
-const StyledTileLabel = styled.label`
-  color: inherit;
-  position: relative;
-  top: calc(0rem - var(--tile-size));
-  left: 0;
-  pointer-events: none;
+  ${(props) => tileStyling(props)}
 `;
 
 const StyledTileImage = styled.img`
-  background-color: grey;
-  background: url(${(props) => props.$src});
+  ${(props) =>
+    props?.$src
+      ? `background: url(${props.$src})`
+      : `background-color: var(--canvas-color)`};
   height: 100%;
   width: 100%;
-
-  &:hover {
-    filter: brightness(50%) blur(5px);
+  border: none;
 `;
 
-export default function Tile({ children, url, src }) {
+const StyledTileLabel = styled.label`
+  display: block;
+  white-space: pre-line;
+  position: absolute;
+  border-radius: 0.5em;
+  width: max-content;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+  pointer-events: none;
+  transition: all 235ms ease-in-out;
+  color: var(--text-color-dark);
+  background-color: var(--label-background-color);
+  box-shadow: 0 0 5px 5px var(--label-background-color);
+
+  & p {
+    margin: 0;
+  }
+`;
+
+export default function Tile({
+  children,
+  as,
+  url,
+  src,
+  label,
+  alt,
+  onClick,
+  onSubmit,
+  className,
+}) {
   const navigate = useNavigate();
-  console.log(children);
 
   return (
-    <StyledTile onClick={() => navigate(url)}>
+    <StyledTile
+      as={as}
+      $displayLabel={label}
+      $displayAlt={alt}
+      onClick={onClick}
+      onSubmit={onSubmit}
+      className={className}
+    >
+      {children}
       <StyledTileImage $src={src} />
       <StyledTileLabel>
-        <h3>{children?.[0]}</h3>
-        <p>
-          {children?.slice(1)?.map((child) => {
-            return <div>{child}</div>;
-          })}
-        </p>
+        {label ? <p className="main-label">{label}</p> : <></>}
+        {alt || label ? <p className="alt-label">{alt || label}</p> : <></>}
       </StyledTileLabel>
     </StyledTile>
   );

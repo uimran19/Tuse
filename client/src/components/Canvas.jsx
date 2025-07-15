@@ -374,11 +374,6 @@ const Canvas = () => {
     const stage = stageRef.current;
     const pointer = stage.getPointerPosition();
 
-    // const pos = {
-    //   x: (pointer.x - stage.x()) / stage.scaleX(),
-    //   y: (pointer.y - stage.y()) / stage.scaleY(),
-    // };
-
     const pos = {
       x: (pointer.x - stagePos.x()) / stageScale.x,
       y: (pointer.y - stagePos.y()) / stageScale.y,
@@ -393,11 +388,11 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
 
-    // setLastDist(0);
-    // setLastCenter(null);
+
 
     lastCenter.current = null;
     lastDist.current = 0;
+
     if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
       setLines((prevLines) => [...prevLines, liveLine]);
@@ -407,9 +402,7 @@ const Canvas = () => {
     });
   };
 
-  // const handleTouchEnd = () => {
 
-  // };
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
