@@ -148,8 +148,10 @@ const Canvas = () => {
     }
   };
 
-  const [lastCenter, setLastCenter] = useState(null);
-  const [lastDist, setLastDist] = useState(0);
+  const lastCenter = useRef(null);
+  const lastDist = useRef(0);
+  const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
+  const [stageScale, setStageScale] = useState({ x: 1, y: 1 });
 
   const getDistance = (p1, p2) => {
     return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
@@ -164,8 +166,10 @@ const Canvas = () => {
 
   const handleTouchMove = (e) => {
     e.evt.preventDefault();
+    e.evt.stopPropagation();
+    const touches = e.evt.touches;
 
-    if (isDrawing.current === true) {
+    if (touches.length === 1 && isDrawing.current === true) {
       const stage = stageRef.current;
       const pointer = stage.getPointerPosition();
 
@@ -178,6 +182,8 @@ const Canvas = () => {
         ...liveLine,
         points: [...liveLine.points, pos.x, pos.y],
       });
+
+      return;
     } else {
       const touch1 = e.evt.touches[0];
       const touch2 = e.evt.touches[1];
@@ -193,42 +199,49 @@ const Canvas = () => {
         x: touch2.clientX,
         y: touch2.clientY,
       };
-
-      if (!lastCenter) {
-        setLastCenter(getCenter(p1, p2));
-        return;
-      }
       const newCenter = getCenter(p1, p2);
-
       const dist = getDistance(p1, p2);
 
-      if (!lastDist) {
-        setLastDist(dist);
+      if (!lastCenter.current) {
+        lastCenter.current = newCenter;
         return;
       }
+
+      if (!lastDist.current) {
+        lastDist.current = dist;
+        return;
+      }
+      const scale = dist / lastDist.current;
+      const newScale = stageScale.x * scale;
 
       const pointTo = {
         x: (newCenter.x - stagePos.x) / stageScale.x,
         y: (newCenter.y - stagePos.y) / stageScale.x,
       };
 
-      const scale = stageScale.x * (dist / lastDist);
+      const dx = newCenter.x - lastCenter.current.x;
+      const dy = newCenter.y - lastCenter.current.y;
 
-      setStageScale({ x: scale, y: scale });
-
-      // calculate new position of the stage
-      const dx = newCenter.x - lastCenter.x;
-      const dy = newCenter.y - lastCenter.y;
+      setStageScale({ x: newScale, y: newScale });
 
       setStagePos({
-        x: newCenter.x - pointTo.x * scale + dx,
-        y: newCenter.y - pointTo.y * scale + dy,
+        x: newCenter.x - pointTo.x * newScale + dx,
+        y: newCenter.y - pointTo.y * newScale + dy,
       });
 
-      setLastDist(dist);
-      setLastCenter(newCenter);
+      lastCenter.current = newCenter;
+      lastDist.current = dist;
     }
   };
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (stage) {
+      stage.scale(stageScale);
+      stage.position(stagePos);
+      stage.batchDraw();
+    }
+  }, [stageScale, stagePos]);
 
   const [redoBuffer, setRedoBuffer] = useState([]);
 
@@ -361,9 +374,14 @@ const Canvas = () => {
     const stage = stageRef.current;
     const pointer = stage.getPointerPosition();
 
+    // const pos = {
+    //   x: (pointer.x - stage.x()) / stage.scaleX(),
+    //   y: (pointer.y - stage.y()) / stage.scaleY(),
+    // };
+
     const pos = {
-      x: (pointer.x - stage.x()) / stage.scaleX(),
-      y: (pointer.y - stage.y()) / stage.scaleY(),
+      x: (pointer.x - stagePos.x()) / stageScale.x,
+      y: (pointer.y - stagePos.y()) / stageScale.y,
     };
 
     setLiveLine({
@@ -375,8 +393,11 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
 
-    setLastDist(0);
-    setLastCenter(null);
+    // setLastDist(0);
+    // setLastCenter(null);
+
+    lastCenter.current = null;
+    lastDist.current = 0;
     if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
       setLines((prevLines) => [...prevLines, liveLine]);
