@@ -13,7 +13,7 @@ export default function TestLayer({ lines, liveLine }) {
     });
     if (brushStrokes?.[0]?.points) {
       return brushStrokes.map((line, i) => {
-        const { strokeWidth } = line;
+        const { strokeWidth, opacity } = line;
         const points = line.points;
         const pointsGrouped = [];
         for (let i = 0; i < points.length; i += 2) {
@@ -27,6 +27,7 @@ export default function TestLayer({ lines, liveLine }) {
               image={brushImage}
               height={strokeWidth}
               width={strokeWidth}
+              opacity={opacity}
               x={x}
               y={y}
             />
