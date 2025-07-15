@@ -31,7 +31,7 @@ function Toolbar({
 
   function handleColorChange(e) {
     setCurrentColour(e.target.value);
-    if (tool === "pen") setColour(e.target.value);
+    if (tool === "pen" || tool === "brush") setColour(e.target.value);
   }
 
   function handleStrokeWidth(e) {

@@ -13,7 +13,12 @@ export default function TestLayer({ lines, liveLine }) {
     });
     if (brushStrokes?.[0]?.points) {
       return brushStrokes.map((line, i) => {
-        const { strokeWidth, opacity } = line;
+        const { strokeWidth, opacity, colour } = line;
+        const rgb = [
+          Number("0x" + colour.slice(1, 3)),
+          Number("0x" + colour.slice(3, 5)),
+          Number("0x" + colour.slice(5)),
+        ];
         const points = line.points;
         const pointsGrouped = [];
         for (let i = 0; i < points.length; i += 2) {
@@ -28,6 +33,10 @@ export default function TestLayer({ lines, liveLine }) {
               height={strokeWidth}
               width={strokeWidth}
               opacity={opacity}
+              //   filters={[Konva.Filters.RGB]}
+              //   red={rgb[0]}
+              //   green={rgb[1]}
+              //   blue={rgb[2]}
               x={x}
               y={y}
             />
