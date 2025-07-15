@@ -1,19 +1,24 @@
+import { BsConeStriped } from "react-icons/bs";
 import { Image, Layer, Stage } from "react-konva";
 import useImage from "use-image";
 
-export default function TestLayer({ lines, liveLine }) {
-  //   const url = "src/assets/brushes/Ink-01.png";
-  const url = "https://konvajs.github.io/assets/yoda.jpg";
-  const [brushImage] = useImage(url);
-  const scale = 5;
+export default function BrushStrokes({ lines, liveLine }) {
+  const brushLookup = {
+    brush: "Ink-01.png",
+  };
+  const brushUrl = (currentBrush) => `/src/assets/brushes/${currentBrush}`;
+  const [brushTexture] = useImage(brushUrl(brushLookup.brush));
+  //   const brushUrl = "https://konvajs.github.io/assets/yoda.jpg";
 
   function drawLines(lines) {
     const brushStrokes = lines.filter((line) => {
-      return line.tool === "brush";
+      const { tool } = line;
+      return brushLookup?.[tool];
     });
     if (brushStrokes?.[0]?.points) {
       return brushStrokes.map((line, i) => {
-        const { strokeWidth, opacity, colour } = line;
+        const { strokeWidth, opacity, colour, tool } = line;
+        // const [brushTexture] = useImage(brushUrl(brushLookup?.[tool]));
         const rgb = [
           Number("0x" + colour.slice(1, 3)),
           Number("0x" + colour.slice(3, 5)),
@@ -29,7 +34,7 @@ export default function TestLayer({ lines, liveLine }) {
           return (
             <Image
               key={`${i}.${j}`}
-              image={brushImage}
+              image={brushTexture}
               height={strokeWidth}
               width={strokeWidth}
               opacity={opacity}
@@ -49,10 +54,10 @@ export default function TestLayer({ lines, liveLine }) {
   }
 
   return (
-    <Layer>
+    <>
       {drawLines(lines)}
       {liveLine?.points ? drawLines([liveLine]) : <></>}
-    </Layer>
+    </>
   );
 }
 
@@ -67,13 +72,13 @@ function TestStage() {
 function TestLayerCopy({ lines }) {
   //   const url = "src/assets/brushes/Ink-01.png";
   const url = "https://konvajs.github.io/assets/yoda.jpg";
-  const [brushImage] = useImage(url);
+  const [brushTexture] = useImage(url);
   const scale = 5;
 
   return (
     <Layer>
       <Image
-        image={brushImage}
+        image={brushTexture}
         x={150}
         y={150}
         scale={{ x: scale, y: scale }}

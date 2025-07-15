@@ -4,7 +4,7 @@ import { socket } from "../socket";
 import Toolbar from "./Toolbar";
 import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
-import TestLayer from "./Testing/TestLayer";
+import BrushStrokes from "./Testing/BrushStrokes";
 
 const Canvas = () => {
   let params = useParams();
@@ -298,8 +298,8 @@ const Canvas = () => {
           ref={stageRef}
           draggable
         >
-          <TestLayer lines={lines} liveLine={liveLine} />
           <Layer>
+            <BrushStrokes lines={lines} liveLine={liveLine} />
             {lines && lines.map((line, i) => <TuseLine key={i} line={line} />)}
             {liveLine && <TuseLine line={liveLine} />}
           </Layer>

@@ -1,6 +1,7 @@
 import { BsEraserFill } from "react-icons/bs";
 import { FaRegSquareFull } from "react-icons/fa6";
 import { useState } from "react";
+import BrushButton from "./BrushButton";
 
 function Toolbar({
   tool,
@@ -58,13 +59,7 @@ function Toolbar({
       >
         🖊️
       </button>
-      <button
-        value={"brush"}
-        onClick={handleToolClick}
-        className={tool === "brush" ? "active" : ""}
-      >
-        brush
-      </button>
+      <BrushButton onClick={handleToolClick} tool={tool} value={"brush"} />
       <button
         value="rectangle"
         onClick={handleToolClick}
