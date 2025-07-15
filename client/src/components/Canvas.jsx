@@ -375,8 +375,8 @@ const Canvas = () => {
     const pointer = stage.getPointerPosition();
 
     const pos = {
-      x: (pointer.x - stagePos.x()) / stageScale.x,
-      y: (pointer.y - stagePos.y()) / stageScale.y,
+      x: (pointer.x - stagePos.x) / stageScale.x,
+      y: (pointer.y - stagePos.y) / stageScale.y,
     };
 
     setLiveLine({
@@ -387,8 +387,6 @@ const Canvas = () => {
 
   const handleMouseUp = () => {
     isDrawing.current = false;
-
-
 
     lastCenter.current = null;
     lastDist.current = 0;
@@ -401,8 +399,6 @@ const Canvas = () => {
       setLiveLine(null);
     });
   };
-
-
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
