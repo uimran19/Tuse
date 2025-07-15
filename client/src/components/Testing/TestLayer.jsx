@@ -13,6 +13,7 @@ export default function TestLayer({ lines, liveLine }) {
     });
     if (brushStrokes?.[0]?.points) {
       return brushStrokes.map((line, i) => {
+        const { strokeWidth } = line;
         const points = line.points;
         const pointsGrouped = [];
         for (let i = 0; i < points.length; i += 2) {
@@ -20,7 +21,16 @@ export default function TestLayer({ lines, liveLine }) {
         }
         return pointsGrouped.map((point, j) => {
           const [x, y] = point;
-          return <Image key={`${i}.${j}`} image={brushImage} x={x} y={y} />;
+          return (
+            <Image
+              key={`${i}.${j}`}
+              image={brushImage}
+              height={strokeWidth}
+              width={strokeWidth}
+              x={x}
+              y={y}
+            />
+          );
         });
       });
     }
