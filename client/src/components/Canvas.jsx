@@ -5,7 +5,7 @@ import Toolbar from "./Toolbar";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
 import BrushStrokes from "./BrushStrokes";
-import InspirationLayer from "./Testing/InspirationLayer";
+import InspirationLayer from "./InspirationLayer";
 
 const Canvas = () => {
   let params = useParams();
