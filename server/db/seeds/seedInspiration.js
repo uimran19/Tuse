@@ -19,3 +19,5 @@ function seedInspiration() {
 }
 
 seedInspiration();
+
+module.exports = seedInspiration
