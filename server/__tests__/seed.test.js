@@ -63,6 +63,20 @@ describe("seed", () => {
           expect(column.character_maximum_length).toBe(50);
         });
     });
+        test("artworks table has daily_inspiration_date column as varying character of max length 10", () => {
+      return db
+        .query(
+          `SELECT *
+            FROM information_schema.columns
+            WHERE table_name = 'artworks'
+            AND column_name = 'daily_inspiration_date';`
+        )
+        .then(({ rows: [column] }) => {
+          expect(column.column_name).toBe("daily_inspiration_date");
+          expect(column.data_type).toBe("character varying");
+          expect(column.character_maximum_length).toBe(10);
+        });
+    });
   });
 });
 
