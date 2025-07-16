@@ -1,5 +1,6 @@
 import { BsEraserFill, } from "react-icons/bs";
 import { FaRegSquareFull } from "react-icons/fa6"
+import { RiPaintFill } from "react-icons/ri";
 import { useState } from "react";
 
 function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpacity, opacity }) {
@@ -49,6 +50,7 @@ function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpa
         🖊️
       </button>
       <button value='rectangle' onClick={handleToolClick} className={tool === 'rectangle' ? 'active' : ''}><FaRegSquareFull /></button>
+      <button><RiPaintFill /></button>
       <button
         value={"eraser"}
         onClick={handleToolClick}
