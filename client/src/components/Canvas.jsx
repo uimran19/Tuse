@@ -4,6 +4,7 @@ import { socket } from "../socket";
 import Toolbar from "./Toolbar";
 import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
+import BrushStrokes from "./BrushStrokes";
 
 const Canvas = () => {
   let params = useParams();
@@ -28,7 +29,7 @@ const Canvas = () => {
     console.log("Lines pre upload --> ", lines);
     const myData = lines;
     console.log(myData);
-    const fileName = "MyDrawing";
+    const fileName = "my-file";
     const json = JSON.stringify(myData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const href = URL.createObjectURL(blob);
@@ -61,7 +62,6 @@ const Canvas = () => {
   };
 
   const handleMouseDown = (e) => {
-    setRedoBuffer([]);
     const stage = stageRef.current;
 
     if (e.evt.button === 1) {
@@ -252,7 +252,6 @@ const Canvas = () => {
       points: [...liveLine.points, pos.x, pos.y],
     });
   };
-
   const handleMouseUp = () => {
     isDrawing.current = false;
 
@@ -316,7 +315,6 @@ const Canvas = () => {
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
-      console.log(lines);
     });
 
     socket.on("live-users", (currUsers) => {
@@ -327,10 +325,6 @@ const Canvas = () => {
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
-    });
-
-    socket.on("undoCommand", (data) => {
-      handleReceivedUndo(data.socketIdRef);
     });
 
     socket.on("connect", () => {
@@ -355,7 +349,7 @@ const Canvas = () => {
       socket.off("drawing");
       socket.off("initial-canvas");
     };
-  }, [undoActivated]);
+  }, []);
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
@@ -370,14 +364,31 @@ const Canvas = () => {
     document.body.removeChild(link);
   };
 
+  function TuseLine({ line }) {
+    return (
+      <Line
+        points={line.points}
+        stroke={line.colour}
+        strokeWidth={line.strokeWidth}
+        opacity={
+          line.tool === "eraser" ? 1 : line.tool === "brush" ? 0 : line.opacity
+        }
+        tension={0.5}
+        lineCap="round"
+        lineJoin="round"
+        globalCompositeOperation={
+          line.tool === "eraser" ? "destination-out" : "source-over"
+        }
+      />
+    );
+  }
+
   if (isValidRoom)
     return (
       <div>
         <button onClick={handleExport}>Download</button>
         <button onClick={downloadFile}>Download Editable</button>
         <input type="file" onChange={setCanvasWithFile} />
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
 
         <Toolbar
           tool={tool}
@@ -402,36 +413,9 @@ const Canvas = () => {
           draggable
         >
           <Layer>
-            {lines &&
-              lines.map((line, i) => (
-                <Line
-                  key={i}
-                  points={line.points}
-                  stroke={line.colour}
-                  strokeWidth={line.strokeWidth}
-                  opacity={line.tool === "eraser" ? 1 : line.opacity}
-                  tension={0.5}
-                  lineCap="round"
-                  lineJoin="round"
-                  globalCompositeOperation={
-                    line.tool === "eraser" ? "destination-out" : "source-over"
-                  }
-                />
-              ))}
-            {liveLine && (
-              <Line
-                points={liveLine.points}
-                stroke={liveLine.colour}
-                strokeWidth={liveLine.strokeWidth}
-                opacity={liveLine.tool === "eraser" ? 1 : liveLine.opacity}
-                tension={0.5}
-                lineCap="round"
-                lineJoin="round"
-                globalCompositeOperation={
-                  liveLine.tool === "eraser" ? "destination-out" : "source-over"
-                }
-              />
-            )}
+            <BrushStrokes lines={lines} liveLine={liveLine} />
+            {lines && lines.map((line, i) => <TuseLine key={i} line={line} />)}
+            {liveLine && <TuseLine line={liveLine} />}
           </Layer>
         </Stage>
       </div>

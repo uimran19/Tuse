@@ -1,8 +1,17 @@
-import { BsEraserFill, } from "react-icons/bs";
-import { FaRegSquareFull } from "react-icons/fa6"
+import { BsEraserFill } from "react-icons/bs";
+import { FaRegSquareFull } from "react-icons/fa6";
 import { useState } from "react";
+import BrushButton from "./BrushButton";
 
-function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpacity, opacity }) {
+function Toolbar({
+  tool,
+  setTool,
+  setStrokeWidth,
+  strokeWidth,
+  setColour,
+  setOpacity,
+  opacity,
+}) {
   const [showPalette, setShowPalette] = useState(false);
   const [currentColour, setCurrentColour] = useState("#000000");
 
@@ -11,7 +20,9 @@ function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpa
     else if (e.target.value === "pen") {
       setColour("#000000");
       setCurrentColour("#000000");
-    }
+    } // else if (e.target.value === "brush") {
+    //   setStrokeWidth(0);
+    // }
     setTool(e.currentTarget.value);
   }
 
@@ -21,7 +32,7 @@ function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpa
 
   function handleColorChange(e) {
     setCurrentColour(e.target.value);
-    if (tool === "pen") setColour(e.target.value);
+    if (tool === "pen" || tool === "brush") setColour(e.target.value);
   }
 
   function handleStrokeWidth(e) {
@@ -29,7 +40,7 @@ function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpa
   }
 
   function handleOpacity(e) {
-    setOpacity(Number(e.target.value))
+    setOpacity(Number(e.target.value));
   }
 
   return (
@@ -48,7 +59,14 @@ function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpa
       >
         🖊️
       </button>
-      <button value='rectangle' onClick={handleToolClick} className={tool === 'rectangle' ? 'active' : ''}><FaRegSquareFull /></button>
+      <BrushButton onClick={handleToolClick} tool={tool} value={"brush"} />
+      <button
+        value="rectangle"
+        onClick={handleToolClick}
+        className={tool === "rectangle" ? "active" : ""}
+      >
+        <FaRegSquareFull />
+      </button>
       <button
         value={"eraser"}
         onClick={handleToolClick}
@@ -79,8 +97,18 @@ function Toolbar({ tool, setTool, setStrokeWidth, strokeWidth, setColour, setOpa
             <span className="nonPaletteValues">{strokeWidth}</span>
           </div>
           <div className="paletteOpacity">
-            <label className="paletteLabels" htmlFor="opacity">Opacity: </label>
-            <input id="opacity" type="range" min="0" max= "1" step='0.01' value={opacity} onChange={handleOpacity}/>
+            <label className="paletteLabels" htmlFor="opacity">
+              Opacity:{" "}
+            </label>
+            <input
+              id="opacity"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={opacity}
+              onChange={handleOpacity}
+            />
             <span className="nonPaletteValues">{opacity}</span>
           </div>
         </div>
