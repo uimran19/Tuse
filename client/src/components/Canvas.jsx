@@ -22,6 +22,9 @@ const Canvas = () => {
   const [rectangles, setRectangles] = useState([]);
   const [currentRect, setCurrentRect] = useState(null);
 
+  const canvasWidth = 2000;
+  const canvasHeight = 1200;
+
   Konva.dragButtons = [1];
 
   const downloadFile = () => {
@@ -76,13 +79,17 @@ const Canvas = () => {
         x: (pointer.x - stage.x()) / stage.scaleX(),
         y: (pointer.y - stage.y()) / stage.scaleY(),
       };
+
+      const clampX = Math.max(0, Math.min(canvasWidth, pos.x));
+      const clampY = Math.max(0, Math.min(canvasHeight, pos.y));
+
       if (tool === "rectangle") {
         setCurrentRect({});
       }
       setLiveLine({
         canvas_id,
         tool,
-        points: [pos.x, pos.y],
+        points: [clampX, clampY],
         socketIdRef,
         strokeWidth,
         colour,
@@ -222,7 +229,13 @@ const Canvas = () => {
     }
 
     const scaleBy = 1.2;
-    const newScale = direction < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    let newScale = direction < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    const minScaleX = stage.width() / canvasWidth;
+    const minScaleY = stage.height() / canvasHeight;
+
+    const minScale = Math.max(minScaleX, minScaleY);
+    newScale = Math.max(newScale, minScale);
 
     stage.scale({ x: newScale, y: newScale });
 
@@ -232,6 +245,7 @@ const Canvas = () => {
     };
 
     stage.position(newPos);
+    stage.batchDraw();
   };
 
   const handleMouseMove = (e) => {
@@ -364,11 +378,16 @@ const Canvas = () => {
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
+      x: 0,
+      y: 0,
+
+      width: 2000,
+      height: 1200,
       pixelRatio: 2,
     });
 
     const link = document.createElement("a");
-    link.download = "stage.png";
+    link.download = "myDrawing.png";
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
@@ -409,8 +428,8 @@ const Canvas = () => {
           }}
         >
           <Stage
-            width={2000}
-            height={1200}
+            width={canvasWidth}
+            height={canvasHeight}
             onMouseDown={handleMouseDown}
             onMousemove={handleMouseMove}
             onMouseup={handleMouseUp}
@@ -420,13 +439,30 @@ const Canvas = () => {
             onWheel={handleWheelScroll}
             ref={stageRef}
             draggable
+            dragBoundFunc={(pos) => {
+              const scale = stageRef.current.scale();
+              const stage = stageRef.current;
+
+              const canvasScaledWidth = canvasWidth * scale.x;
+              const canvasScaledHeight = canvasHeight * scale.y;
+
+              const minX = stage.width() - canvasScaledWidth;
+              const maxX = 0;
+
+              const minY = stage.height() - canvasScaledHeight;
+              const maxY = 0;
+              return {
+                x: Math.max(minX, Math.min(maxX, pos.x)),
+                y: Math.max(minY, Math.min(maxY, pos.y)),
+              };
+            }}
           >
             <Layer>
               <Rect
                 x={0}
                 y={0}
-                width={500}
-                height={500}
+                width={2000}
+                height={1200}
                 fill="white"
                 listening={false}
               ></Rect>
