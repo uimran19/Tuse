@@ -29,7 +29,9 @@ const Canvas = () => {
 
   const downloadFile = () => {
     console.log("Lines pre upload --> ", lines);
-    const myData = lines;
+
+    const myData = { lines, rectangles };
+
     console.log(myData);
     const fileName = "MyDrawing";
     const json = JSON.stringify(myData, null, 2);
@@ -47,19 +49,53 @@ const Canvas = () => {
   };
 
   const setCanvasWithFile = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
     const fileReader = new FileReader();
-    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.readAsText(file, "UTF-8");
+
     fileReader.onload = (e) => {
-      const newLines = JSON.parse(e.target.result);
-      console.log(newLines);
-      const newestLines = newLines.map((line) => {
-        const newestLine = { ...line };
-        newestLine.canvas_id = canvas_id;
-        newestLine.socketIdRef = socketIdRef;
-        return newestLine;
-      });
-      console.log(newestLines);
-      setLines(newestLines);
+      try {
+        const newData = JSON.parse(e.target.result);
+
+        if (
+          !newData ||
+          !Array.isArray(newData.lines) ||
+          !Array.isArray(newData.rectangles)
+        ) {
+          alert(
+            "Invalid file format. File must contain 'lines' and 'rectangles' arrays"
+          );
+          return;
+        }
+
+        const newLines = newData.lines;
+        const newRectangles = newData.rectangles;
+        console.log("newestLines--> ", newLines);
+        console.log("newestRectangles--> ", newRectangles);
+        const newestLines = newLines.map((line) => {
+          const newestLine = { ...line };
+          newestLine.canvas_id = canvas_id;
+          newestLine.socketIdRef = socketIdRef;
+          return newestLine;
+        });
+
+        const newestRectangles = newRectangles.map((rectangle) => {
+          const newestRectangle = { ...rectangle };
+          newestRectangle.canvas_id = canvas_id;
+          newestRectangle.socketIdRef = socketIdRef;
+          return newestRectangle;
+        });
+
+        setLines(newestLines);
+        setRectangles(newestRectangles);
+      } catch (err) {
+        console.log("Invalid JSON: ", err);
+        alert(
+          "JSON file invalid. Please try again after checking the file contents."
+        );
+      }
     };
   };
 
@@ -336,7 +372,6 @@ const Canvas = () => {
 
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
-      console.log(lines);
     });
 
     socket.on("live-users", (currUsers) => {
