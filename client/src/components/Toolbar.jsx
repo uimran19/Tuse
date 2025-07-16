@@ -173,6 +173,7 @@ function Toolbar({
   handleExport,
   downloadFile,
   setCanvasWithFile,
+  inspirationExists,
   showInspiration,
   setShowInspiration,
 }) {
@@ -301,12 +302,14 @@ function Toolbar({
           </StyledDropdown>
         )}
       </button>
-      <button
-        onClick={toggleShowInspiration}
-        className={showInspiration ? "active" : "not-active"}
-      >
-        {showInspiration ? <FaEyeSlash /> : <FaEye />}
-      </button>
+      {inspirationExists && (
+        <button
+          onClick={toggleShowInspiration}
+          className={showInspiration ? "active" : "not-active"}
+        >
+          {showInspiration ? <FaEyeSlash /> : <FaEye />}
+        </button>
+      )}
     </StyledToolbar>
   );
 }

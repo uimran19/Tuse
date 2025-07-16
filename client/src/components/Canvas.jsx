@@ -544,6 +544,7 @@ const Canvas = () => {
           handleExport={handleExport}
           downloadFile={downloadFile}
           setCanvasWithFile={setCanvasWithFile}
+          inspirationExists={!!location.state?.imageUrl}
           showInspiration={showInspiration}
           setShowInspiration={setShowInspiration}
         />
