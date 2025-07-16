@@ -524,12 +524,6 @@ const Canvas = () => {
           height: "95vh",
         }}
       >
-        <button onClick={handleExport}>Download</button>
-        <button onClick={downloadFile}>Download Editable</button>
-        <input type="file" onChange={setCanvasWithFile} />
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
-
         <Toolbar
           tool={tool}
           setTool={setTool}
@@ -541,6 +535,8 @@ const Canvas = () => {
           handleExport={handleExport}
           downloadFile={downloadFile}
           setCanvasWithFile={setCanvasWithFile}
+          handleUndo={handleUndo}
+          handleRedo={handleRedo}
         />
 
         <div
