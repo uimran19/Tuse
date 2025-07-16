@@ -74,30 +74,13 @@ async function seed(endPage, pageNumber = 1) {
     } else {
       return newArtworks
     }
-    // return getImageIds(pageNumber).then((artworksToAdd) => {
-    //   const newArtworks = artworks.concat(artworksToAdd);
-    //   if (pageNumber !== endPage) {
-    //     return getImageIdsRecursively(pageNumber + 1, endPage, newArtworks);
-    //   } else {
-    //     return newArtworks;
-    //   }
-    // });
   }
 
   const totalArtworks = await getImageIdsRecursively(pageNumber, endPage);
   const insertedArtworks = await insertArtworks(totalArtworks);
   console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
 
-  // return getImageIdsRecursion(pageNumber, endPage)
-  //   .then((totalArtworks) => {
-  //     insertArtworks(totalArtworks)
-  //       .then((insertedArtworks) => {
-  //         console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
-  //       }
-  //     );
-  // });
 }
 
-// seed(10);
 
 module.exports = seed;

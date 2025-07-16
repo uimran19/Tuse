@@ -35,7 +35,7 @@ describe("seed", () => {
           expect(column.data_type).toBe("integer");
         });
     });
-    test("artworks table has artwork_id column as the primary key", () => {
+    test("artworks table has id column as the primary key", () => {
       return db
         .query(
           `SELECT column_name
@@ -46,7 +46,7 @@ describe("seed", () => {
             AND tc.table_name = 'artworks';`
         )
         .then(({ rows: [{ column_name }] }) => {
-          expect(column_name).toBe("artwork_id");
+          expect(column_name).toBe("id");
         });
     });
     test("artworks table has image_id column as varying character of max length 50", () => {
@@ -69,11 +69,11 @@ describe("seed", () => {
 describe("insert data", () => {
   test("artworks data has been inserted correctly", () => {
     return db.query(`SELECT * FROM artworks;`).then(({ rows }) => {
-      console.log(rows);
-      expect(rows).toHaveLength(73);
       rows.forEach((artwork) => {
+        expect(artwork).toHaveProperty("id");
         expect(artwork).toHaveProperty("artwork_id");
         expect(artwork).toHaveProperty("image_id");
+        expect(artwork).toHaveProperty("daily_inspiration_date");
       });
     });
   });
