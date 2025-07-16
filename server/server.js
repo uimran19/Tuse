@@ -85,8 +85,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("requestUndo", (data) => {
-    //delete local
-
     for (let i = knownCanvases[data.canvas_id].length - 1; i >= 0; i--) {
       if (
         knownCanvases[data.canvas_id][i].socketIdRef.current ===
