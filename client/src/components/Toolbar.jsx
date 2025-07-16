@@ -2,6 +2,65 @@ import { BsEraserFill } from "react-icons/bs";
 import { FaRegSquareFull } from "react-icons/fa6";
 import { useState } from "react";
 import BrushButton from "./BrushButton";
+import styled from "styled-components";
+
+const StyledToolbar = styled.section`
+  --button-scale: 1.5;
+  position: fixed;
+  top: calc(var(--header-height) + 0.5rem);
+  left: 50%;
+  transform: translate(-50%);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0 0.25rem;
+  background-color: transparent;
+
+  & button {
+    margin: 0.5rem;
+    padding: 0.5rem;
+    background-color: white;
+    border: none;
+    border-radius: calc(0.75rem * var(--button-scale));
+    height: calc(2rem * var(--button-scale));
+    min-width: calc(2rem * var(--button-scale));
+    box-sizing: border-box;
+    font-size: calc(0.65rem * var(--button-scale));
+    box-shadow: rgba(0, 0, 0, 0.17) 0px calc(-4.6px * var(--button-scale))
+        calc(5px * var(--button-scale)) 0px inset,
+      rgba(0, 0, 0, 0.15) 0px calc(-7px * var(--button-scale))
+        calc(6px * var(--button-scale)) 0px inset,
+      rgba(0, 0, 0, 0.1) 0px calc(-16px * var(--button-scale))
+        calc(8px * var(--button-scale)) 0px inset,
+      rgba(0, 0, 0, 0.06) 0px calc(0.5px * var(--button-scale))
+        calc(0.5px * var(--button-scale)),
+      rgba(0, 0, 0, 0.09) 0px calc(1px * var(--button-scale))
+        calc(0.5px * var(--button-scale)),
+      rgba(0, 0, 0, 0.09) 0px calc(1.6px * var(--button-scale))
+        calc(1px * var(--button-scale)),
+      rgba(0, 0, 0, 0.09) 0px calc(3px * var(--button-scale))
+        calc(1.6px * var(--button-scale)),
+      rgba(0, 0, 0, 0.09) 0px calc(6px * var(--button-scale))
+        calc(3px * var(--button-scale));
+  }
+
+  & .active {
+    box-shadow: rgba(0, 0, 0, 0.17) 0px calc(4.6px * var(--button-scale))
+        calc(5px * var(--button-scale)) 0px inset,
+      rgba(0, 0, 0, 0.15) 0px calc(7px * var(--button-scale))
+        calc(6px * var(--button-scale)) 0px inset,
+      rgba(0, 0, 0, 0.1) 0px calc(16px * var(--button-scale))
+        calc(8px * var(--button-scale)) 0px inset,
+      rgba(0, 0, 0, 0.06) 0px calc(0.5px * var(--button-scale))
+        calc(0.5px * var(--button-scale)),
+      rgba(0, 0, 0, 0.09) 0px calc(1px * var(--button-scale))
+        calc(0.5px * var(--button-scale)) inset,
+      rgba(0, 0, 0, 0.09) 0px calc(1.6px * var(--button-scale))
+        calc(1px * var(--button-scale)) inset;
+  }
+`;
 
 function Toolbar({
   tool,
@@ -44,7 +103,7 @@ function Toolbar({
   }
 
   return (
-    <section id="toolbad" className="toolbar">
+    <StyledToolbar id="toolbad" className="toolbar">
       <button
         value={"pencil"}
         onClick={handleToolClick}
@@ -74,7 +133,7 @@ function Toolbar({
       >
         <BsEraserFill />
       </button>
-      <span className="toolbarSplit">|</span>
+      {/* <span className="toolbarSplit">|</span> */}
       <button onClick={togglePalette}>🎨</button>
       {showPalette && (
         <div className="paletteDropdown">
@@ -113,7 +172,7 @@ function Toolbar({
           </div>
         </div>
       )}
-    </section>
+    </StyledToolbar>
   );
 }
 
