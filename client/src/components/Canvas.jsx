@@ -634,22 +634,23 @@ const Canvas = () => {
                   }
                 />
               )}
-              {rectangles.map((rect, i) => (
-                <Rect
-                  key={`rect-${i}`}
-                  // colour={rect.colour}
-                  x={rect.x}
-                  y={rect.y}
-                  width={rect.width}
-                  height={rect.height}
-                  // fill={rect.fill}
-                  stroke={rect.colour}
-                  strokeWidth={rect.strokeWidth}
-                  opacity={rect.opacity}
-                />
-              ))}
+              {rectangles &&
+                rectangles.map((rect, i) => (
+                  <Rect
+                    key={`rect-${i}`}
+                    // colour={rect.colour}
+                    x={rect.x}
+                    y={rect.y}
+                    width={rect.width}
+                    height={rect.height}
+                    // fill={rect.fill}
+                    stroke={rect.colour}
+                    strokeWidth={rect.strokeWidth}
+                    opacity={rect.opacity}
+                  />
+                ))}
 
-              {currentRect && (
+              {currentRect && currentRect && (
                 <Rect
                   x={currentRect.x}
                   y={currentRect.y}

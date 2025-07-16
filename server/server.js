@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
 
   socket.on("drawing", (data) => {
     if (!data || !data.canvas_id || !roomExists(data.canvas_id)) return;
-
+    console.log(knownCanvases[data.canvas_id].lines);
     knownCanvases[data.canvas_id].lines.push(data);
     io.to(data.canvas_id).emit("drawing", data);
   });
