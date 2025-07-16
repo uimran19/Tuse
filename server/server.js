@@ -1,24 +1,8 @@
-const express = require("express");
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
-const cors = require("cors");
+const app = require("./app")
 
-const getInspiration = require("./controllers/getInspiration");
-
-const app = express();
 const server = createServer(app);
-
-app.use(cors());
-
-app.use(express.json());
-
-app.use(express.static("public"));
-
-app.get("/", (req, res) => res.send("Hello World!"));
-
-app.get("/inspiration/:date", (req, res, next) => {
-  getInspiration(req, res, next);
-});
 
 const io = new Server(server, {
   cors: {

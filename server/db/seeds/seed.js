@@ -56,29 +56,31 @@ function insertArtworks(artworks) {
   return db.query(artworksInsertString);
 }
 
-function seed(endPage, pageNumber = 1) {
-  createTable();
+const maxPages = 10;
 
-  function getImageIdsRecursion(pageNumber, endPage, artworks = []) {
-    return getImageIds(pageNumber).then((artworksToAdd) => {
-      const newArtworks = artworks.concat(artworksToAdd);
-      if (pageNumber !== endPage) {
-        return getImageIdsRecursion(pageNumber + 1, endPage, newArtworks);
-      } else {
-        return newArtworks;
-      }
-    });
+async function seed(endPage, pageNumber = 1) {
+    if ((endPage - pageNumber) > maxPages) {
+    throw new Error(`Cannot fetch more than ${maxPages} pages from the API`);
   }
-  return getImageIdsRecursion(pageNumber, endPage)
-    .then((totalArtworks) => {
-      insertArtworks(totalArtworks)
-        .then((insertedArtworks) => {
-          console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
-        }
-      );
-  });
+  
+  await createTable();
+
+  async function getImageIdsRecursively(pageNumber, endPage, artworks = []) {
+    const fetchedArtworks = await getImageIds(pageNumber);
+    const newArtworks = artworks.concat(fetchedArtworks);
+
+    if (pageNumber < endPage) {
+      return getImageIdsRecursively(pageNumber + 1, endPage, newArtworks)
+    } else {
+      return newArtworks
+    }
+  }
+
+  const totalArtworks = await getImageIdsRecursively(pageNumber, endPage);
+  const insertedArtworks = await insertArtworks(totalArtworks);
+  console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
+
 }
 
-seed(10);
 
 module.exports = seed;

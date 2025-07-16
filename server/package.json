@@ -1,5 +1,5 @@
 {
-  "main": "listen.js",
+  "main": "server.js",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.1.0",
@@ -15,9 +15,10 @@
     "seed-inspiration": "node db/seeds/seedInspiration",
     "seed-prod": "NODE_ENV=production npm run seed",
     "seed-inspiration-prod": "NODE_ENV=production npm run seed-inspiration",
-    "test": "jest --runInBand"
+    "test": "NODE_ENV=test jest --runInBand --detectOpenHandles"
   },
   "devDependencies": {
-    "jest": "^29.7.0"
+    "jest": "^29.7.0",
+    "supertest": "^7.1.3"
   }
 }
