@@ -128,7 +128,8 @@ const Canvas = () => {
           width: 0,
           height: 0,
           // fill: 'black',
-          stroke: "black",
+          stroke: colour,
+          colour,
           strokeWidth,
           opacity,
           tool: "rectangle",
@@ -162,6 +163,23 @@ const Canvas = () => {
         x: (pointer.x - stage.x()) / stage.scaleX(),
         y: (pointer.y - stage.y()) / stage.scaleY(),
       };
+
+      if (tool === "rectangle") {
+        setCurrentRect({
+          canvas_id,
+          x: pos.x,
+          y: pos.y,
+          width: 0,
+          height: 0,
+          // fill: 'black',
+          stroke: colour,
+          colour,
+          strokeWidth,
+          opacity,
+          tool: "rectangle",
+        });
+      }
+
       setLiveLine({
         canvas_id,
         tool,
@@ -202,6 +220,18 @@ const Canvas = () => {
         x: (pointer.x - stage.x()) / stage.scaleX(),
         y: (pointer.y - stage.y()) / stage.scaleY(),
       };
+
+      if (tool === "rectangle" && currentRect) {
+        const width = pos.x - currentRect.x;
+        const height = pos.y - currentRect.y;
+
+        setCurrentRect({
+          ...currentRect,
+          width,
+          height,
+        });
+        return;
+      }
 
       setLiveLine({
         ...liveLine,
@@ -607,12 +637,13 @@ const Canvas = () => {
               {rectangles.map((rect, i) => (
                 <Rect
                   key={`rect-${i}`}
+                  // colour={rect.colour}
                   x={rect.x}
                   y={rect.y}
                   width={rect.width}
                   height={rect.height}
                   // fill={rect.fill}
-                  stroke={rect.stroke}
+                  stroke={rect.colour}
                   strokeWidth={rect.strokeWidth}
                   opacity={rect.opacity}
                 />
