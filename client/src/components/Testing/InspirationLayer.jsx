@@ -6,18 +6,11 @@ const StyledLayer = styled(Layer)`
   pointer-events: none;
 `;
 
-export default function InspirationLayer({
-  inspiration,
-  canvasWidth,
-  canvasHeight,
-}) {
-  //   const url = "src/assets/brushes/Ink-01.png";
+export default function InspirationLayer({ inspiration, canvasWidth }) {
   const url = inspiration.imageUrl;
   const [brushTexture] = useImage(url);
   const imageSize = 1686;
   const scale = 0.5;
-
-  console.log(inspiration);
 
   return (
     <Layer>

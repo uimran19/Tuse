@@ -586,11 +586,10 @@ const Canvas = () => {
               };
             }}
           >
-            {showInspiration && (
+            {showInspiration && location.state?.imageUrl && (
               <InspirationLayer
                 inspiration={location.state}
                 canvasWidth={canvasWidth}
-                canvasHeight={canvasHeight}
               />
             )}
             <Layer>
