@@ -12,6 +12,7 @@ export default function BrushStrokes({ lines, liveLine }) {
   //   const brushUrl = "https://konvajs.github.io/assets/yoda.jpg";
 
   function drawLines(lines) {
+    if (!Array.isArray(lines)) return null;
     const brushStrokes = lines.filter((line) => {
       const { tool } = line;
       return brushLookup?.[tool];
