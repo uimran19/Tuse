@@ -103,11 +103,11 @@ button.undoRedoButtons:active {
   color: black;
 }
 
-.paletteLabels{
+.paletteLabels {
   color: black;
 }
 
-#strokeWidth{
+#strokeWidth {
   max-width: 2.5rem;
 }
 

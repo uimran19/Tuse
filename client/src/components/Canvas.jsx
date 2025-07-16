@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
 import { socket } from "../socket";
 import Toolbar from "./Toolbar";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
 import BrushStrokes from "./BrushStrokes";
+import InspirationLayer from "./Testing/InspirationLayer";
 
 const Canvas = () => {
   let params = useParams();
@@ -22,6 +23,8 @@ const Canvas = () => {
   const [isValidRoom, setIsValidRoom] = useState(true);
   const [rectangles, setRectangles] = useState([]);
   const [currentRect, setCurrentRect] = useState(null);
+  const location = useLocation();
+  const [showInspiration, setShowInspiration] = useState(true);
 
   const canvasWidth = 2000;
   const canvasHeight = 1200;
@@ -535,6 +538,9 @@ const Canvas = () => {
           handleExport={handleExport}
           downloadFile={downloadFile}
           setCanvasWithFile={setCanvasWithFile}
+          inspirationExists={!!location.state?.imageUrl}
+          showInspiration={showInspiration}
+          setShowInspiration={setShowInspiration}
           handleUndo={handleUndo}
           handleRedo={handleRedo}
         />
@@ -577,13 +583,18 @@ const Canvas = () => {
               };
             }}
           >
+            {showInspiration && location.state?.imageUrl && (
+              <InspirationLayer
+                inspiration={location.state}
+                canvasWidth={canvasWidth}
+              />
+            )}
             <Layer>
               <Rect
                 x={0}
                 y={0}
                 width={2000}
                 height={1200}
-                fill="white"
                 listening={false}
               ></Rect>
               {lines &&
@@ -659,7 +670,11 @@ const Canvas = () => {
                   // dash={[4, 2]}
                 />
               )}
-              <BrushStrokes lines={lines} liveLine={liveLine} />
+              <BrushStrokes
+                lines={lines}
+                liveLine={liveLine}
+                inspiration={location.state}
+              />
             </Layer>
           </Stage>
         </div>

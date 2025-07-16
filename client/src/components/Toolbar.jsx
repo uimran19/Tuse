@@ -1,6 +1,14 @@
+import {
+  FaPenFancy,
+  FaEye,
+  FaEyeSlash,
+  FaPalette,
+  FaSave,
+  FaUndo, 
+  FaRedo, 
+} from "react-icons/fa";
 import { FaPencil, FaRegSquareFull } from "react-icons/fa6";
 import { BsEraserFill } from "react-icons/bs";
-import { FaSave, FaUndo, FaRedo, FaPenFancy, FaPalette } from "react-icons/fa";
 import { useState } from "react";
 import BrushButton from "./BrushButton";
 import styled from "styled-components";
@@ -170,6 +178,9 @@ function Toolbar({
   handleExport,
   downloadFile,
   setCanvasWithFile,
+  inspirationExists,
+  showInspiration,
+  setShowInspiration,
   handleUndo,
   handleRedo,
 }) {
@@ -205,6 +216,10 @@ function Toolbar({
 
   function handleOpacity(e) {
     setOpacity(Number(e.target.value));
+  }
+
+  function toggleShowInspiration() {
+    setShowInspiration(!showInspiration);
   }
 
   return (
@@ -301,6 +316,14 @@ function Toolbar({
           </StyledDropdown>
         )}
       </button>
+      {inspirationExists && (
+        <button
+          onClick={toggleShowInspiration}
+          className={showInspiration ? "active" : "not-active"}
+        >
+          {showInspiration ? <FaEyeSlash /> : <FaEye />}
+        </button>
+      )}
     </StyledToolbar>
   );
 }
