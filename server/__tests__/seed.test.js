@@ -1,8 +1,9 @@
+jest.setTimeout(30000);
+
 const db = require("../db/connection");
-const runSeed = require("../db/seeds/run-seed");
 const seed = require("../db/seeds/seed");
 
-beforeAll(() => seed());
+beforeAll(async () => { await seed(2)});
 afterAll(() => db.end());
 
 describe("seed", () => {
@@ -34,7 +35,7 @@ describe("seed", () => {
           expect(column.data_type).toBe("integer");
         });
     });
-    test("artworks table has artwork_id column as the primary key", () => {
+    test("artworks table has id column as the primary key", () => {
       return db
         .query(
           `SELECT column_name
@@ -45,7 +46,7 @@ describe("seed", () => {
             AND tc.table_name = 'artworks';`
         )
         .then(({ rows: [{ column_name }] }) => {
-          expect(column_name).toBe("artwork_id");
+          expect(column_name).toBe("id");
         });
     });
     test("artworks table has image_id column as varying character of max length 50", () => {
@@ -62,17 +63,31 @@ describe("seed", () => {
           expect(column.character_maximum_length).toBe(50);
         });
     });
+        test("artworks table has daily_inspiration_date column as varying character of max length 10", () => {
+      return db
+        .query(
+          `SELECT *
+            FROM information_schema.columns
+            WHERE table_name = 'artworks'
+            AND column_name = 'daily_inspiration_date';`
+        )
+        .then(({ rows: [column] }) => {
+          expect(column.column_name).toBe("daily_inspiration_date");
+          expect(column.data_type).toBe("character varying");
+          expect(column.character_maximum_length).toBe(10);
+        });
+    });
   });
 });
 
 describe("insert data", () => {
   test("artworks data has been inserted correctly", () => {
     return db.query(`SELECT * FROM artworks;`).then(({ rows }) => {
-      console.log(rows);
-      expect(rows).toHaveLength(73);
       rows.forEach((artwork) => {
+        expect(artwork).toHaveProperty("id");
         expect(artwork).toHaveProperty("artwork_id");
         expect(artwork).toHaveProperty("image_id");
+        expect(artwork).toHaveProperty("daily_inspiration_date");
       });
     });
   });

@@ -4,6 +4,8 @@ import {
   FaEyeSlash,
   FaPalette,
   FaSave,
+  FaUndo, 
+  FaRedo, 
 } from "react-icons/fa";
 import { FaPencil, FaRegSquareFull } from "react-icons/fa6";
 import { BsEraserFill } from "react-icons/bs";
@@ -57,9 +59,12 @@ const StyledToolbar = styled.section`
   position: fixed;
   z-index: 10;
   top: calc(var(--header-height) + 0.5rem);
-  left: 50%;
+  left: 50vw;
   transform: translate(-50%);
+  max-width: 95vw;
+  width: max-content;
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
   align-items: flex-start;
@@ -176,6 +181,8 @@ function Toolbar({
   inspirationExists,
   showInspiration,
   setShowInspiration,
+  handleUndo,
+  handleRedo,
 }) {
   const [showPalette, setShowPalette] = useState(false);
   const [showFileMenu, setShowFileMenu] = useState(false);
@@ -217,6 +224,14 @@ function Toolbar({
 
   return (
     <StyledToolbar>
+      <button onClick={handleUndo} className="not-active">
+        <FaUndo />
+      </button>
+      <button onClick={handleRedo} className="not-active">
+        <FaRedo />
+      </button>
+      <span className="toolbarSplit"></span>
+
       <button
         value={"pencil"}
         onClick={handleToolClick}
@@ -251,7 +266,6 @@ function Toolbar({
       >
         <BsEraserFill />
       </button>
-      <span className="toolbarSplit"></span>
       <button onClick={togglePalette} className="not-active">
         <FaPalette />
         {showPalette && (

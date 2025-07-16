@@ -69,8 +69,9 @@
 Tuse ('Two' + 'Muse') is a browser-based drawing application with a focus on collaboration and inspiration from classic works of art. Features include:
 
 - Daily inspiration images
-- Real-time collaboration on shared canvases
+- Real-time collaboration on shared drawing canvases
 - Customisation of brushes (thickness, colour)
+- Undo and redo (with history)
 - Saving and loading of created canvases
 - Export of canvases as images
 
@@ -289,5 +290,5 @@ This portfolio project was created as part of a Digital Skills Bootcamp in Softw
 [Postgresql-url]: https://www.postgresql.org/
 [JestJS.io]: https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white
 [Jest-url]: https://jestjs.io/
-[Styled-Components.com]: https://img.shields.io/badge/styledcomponents-20232A?style=for-the-badge&logo=styled-components&logoColor=DB7093
+[Styled-Components.com]: https://img.shields.io/badge/styled_components-20232A?style=for-the-badge&logo=styled-components&logoColor=DB7093
 [Styledcomponents-url]: https://styled-components.com/

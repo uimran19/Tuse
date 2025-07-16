@@ -527,12 +527,6 @@ const Canvas = () => {
           height: "95vh",
         }}
       >
-        <button onClick={handleExport}>Download</button>
-        <button onClick={downloadFile}>Download Editable</button>
-        <input type="file" onChange={setCanvasWithFile} />
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
-
         <Toolbar
           tool={tool}
           setTool={setTool}
@@ -547,6 +541,8 @@ const Canvas = () => {
           inspirationExists={!!location.state?.imageUrl}
           showInspiration={showInspiration}
           setShowInspiration={setShowInspiration}
+          handleUndo={handleUndo}
+          handleRedo={handleRedo}
         />
 
         <div
