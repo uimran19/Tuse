@@ -58,33 +58,46 @@ function insertArtworks(artworks) {
 
 const maxPages = 10;
 
-function seed(endPage, pageNumber = 1) {
+async function seed(endPage, pageNumber = 1) {
     if ((endPage - pageNumber) > maxPages) {
     throw new Error(`Cannot fetch more than ${maxPages} pages from the API`);
   }
   
-  createTable();
+  await createTable();
 
-  function getImageIdsRecursion(pageNumber, endPage, artworks = []) {
-    return getImageIds(pageNumber).then((artworksToAdd) => {
-      const newArtworks = artworks.concat(artworksToAdd);
-      if (pageNumber !== endPage) {
-        return getImageIdsRecursion(pageNumber + 1, endPage, newArtworks);
-      } else {
-        return newArtworks;
-      }
-    });
+  async function getImageIdsRecursively(pageNumber, endPage, artworks = []) {
+    const fetchedArtworks = await getImageIds(pageNumber);
+    const newArtworks = artworks.concat(fetchedArtworks);
+
+    if (pageNumber < endPage) {
+      return getImageIdsRecursively(pageNumber + 1, endPage, newArtworks)
+    } else {
+      return newArtworks
+    }
+    // return getImageIds(pageNumber).then((artworksToAdd) => {
+    //   const newArtworks = artworks.concat(artworksToAdd);
+    //   if (pageNumber !== endPage) {
+    //     return getImageIdsRecursively(pageNumber + 1, endPage, newArtworks);
+    //   } else {
+    //     return newArtworks;
+    //   }
+    // });
   }
-  return getImageIdsRecursion(pageNumber, endPage)
-    .then((totalArtworks) => {
-      insertArtworks(totalArtworks)
-        .then((insertedArtworks) => {
-          console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
-        }
-      );
-  });
+
+  const totalArtworks = await getImageIdsRecursively(pageNumber, endPage);
+  const insertedArtworks = await insertArtworks(totalArtworks);
+  console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
+
+  // return getImageIdsRecursion(pageNumber, endPage)
+  //   .then((totalArtworks) => {
+  //     insertArtworks(totalArtworks)
+  //       .then((insertedArtworks) => {
+  //         console.log(`artworks table seeded with row count: ${insertedArtworks.rowCount}`)
+  //       }
+  //     );
+  // });
 }
 
-seed(10);
+// seed(10);
 
 module.exports = seed;

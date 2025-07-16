@@ -3,7 +3,7 @@ jest.setTimeout(30000);
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 
-beforeAll(() => seed());
+beforeAll(async () => { await seed(2)});
 afterAll(() => db.end());
 
 describe("seed", () => {
