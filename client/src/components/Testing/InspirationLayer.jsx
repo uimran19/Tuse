@@ -14,8 +14,8 @@ export default function InspirationLayer({
   //   const url = "src/assets/brushes/Ink-01.png";
   const url = inspiration.imageUrl;
   const [brushTexture] = useImage(url);
-  const imageSize = 3000;
-  const scale = 0.35;
+  const imageSize = 1686;
+  const scale = 0.5;
 
   console.log(inspiration);
 
@@ -24,9 +24,8 @@ export default function InspirationLayer({
       <Image
         image={brushTexture}
         x={canvasWidth / 2}
-        y={canvasHeight / 2}
+        y={120}
         offsetX={(imageSize * scale) / 2}
-        offsetY={(imageSize * scale) / 2}
         scale={{ x: scale, y: scale }}
       />
     </Layer>
