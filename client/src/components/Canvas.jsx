@@ -328,6 +328,12 @@ const Canvas = () => {
   const [undoActivated, setUndoActivate] = useState(false);
 
   useEffect(() => {
+    if (socket.connected) {
+      socketIdRef.current = socket.id;
+      socket.emit("joinRoomRequest", canvas_id);
+      socket.emit("get-initial-canvas", canvas_id);
+    }
+
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
       console.log(lines);
@@ -368,13 +374,18 @@ const Canvas = () => {
     });
 
     return () => {
-      socket.off("connect");
-      socket.off("live-users");
-      socket.off("test message received");
-      socket.off("drawing");
       socket.off("initial-canvas");
+      socket.off("live-users");
+      socket.off("drawing");
+
+      socket.off("undoCommand");
+      socket.off("roomJoined");
+      socket.off("connect");
+      socket.off("connect-error");
+      socket.off("roomJoinError");
+      socket.off("test message received");
     };
-  }, [undoActivated]);
+  }, [canvas_id]);
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
