@@ -54,6 +54,7 @@ const StyledToolbar = styled.section`
   left: 50vw;
   transform: translate(-50%);
   max-width: 95vw;
+  width: max-content;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
