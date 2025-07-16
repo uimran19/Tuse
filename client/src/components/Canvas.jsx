@@ -16,11 +16,11 @@ const Canvas = () => {
   const [liveUsers, setLiveUsers] = React.useState([]);
   const stageRef = useRef(null);
   const [strokeWidth, setStrokeWidth] = useState(1);
-  const [opacity, setOpacity] = useState(1)
+  const [opacity, setOpacity] = useState(1);
   const [colour, setColour] = useState("#000000");
   const [isValidRoom, setIsValidRoom] = useState(true);
-  const [rectangles, setRectangles] = useState([])
-  const [currentRect, setCurrentRect] = useState(null)
+  const [rectangles, setRectangles] = useState([]);
+  const [currentRect, setCurrentRect] = useState(null);
 
   Konva.dragButtons = [1];
 
@@ -39,22 +39,21 @@ const Canvas = () => {
         x: (pointer.x - stage.x()) / stage.scaleX(),
         y: (pointer.y - stage.y()) / stage.scaleY(),
       };
-       if (tool === 'rectangle') {
-      setCurrentRect({
-        canvas_id,
-        x: pos.x,
-        y: pos.y,
-        width: 0,
-        height: 0,
-        // fill: 'black',
-        stroke: 'black',
-        strokeWidth,
-        opacity,
-        tool: 'rectangle'
-
-      })
-      return
-    }
+      if (tool === "rectangle") {
+        setCurrentRect({
+          canvas_id,
+          x: pos.x,
+          y: pos.y,
+          width: 0,
+          height: 0,
+          // fill: 'black',
+          stroke: "black",
+          strokeWidth,
+          opacity,
+          tool: "rectangle",
+        });
+        return;
+      }
       setLiveLine({
         canvas_id,
         tool,
@@ -62,7 +61,7 @@ const Canvas = () => {
         socketIdRef,
         strokeWidth,
         colour,
-        opacity
+        opacity,
       });
     }
   };
@@ -146,8 +145,15 @@ const Canvas = () => {
   // const h
 
   useEffect(() => {
+    if (socket.connected) {
+      socketIdRef.current = socket.id;
+      socket.emit("joinRoomRequest", canvas_id);
+      socket.emit("get-initial-canvas", canvas_id);
+    }
     socket.on("initial-canvas", (canvasData) => {
       setLines(canvasData.lines);
+      setRectangles(canvasData.rectangles);
+      console.log(canvasData);
     });
 
     socket.on("live-users", (currUsers) => {
@@ -162,10 +168,10 @@ const Canvas = () => {
     });
 
     socket.on("drawing-rectangle", (newRect) => {
-      if(newRect.socketIdRef !== socketIdRef.current) {
-        setRectangles((prev)=> [...prev, newRect])
+      if (newRect.socketIdRef !== socketIdRef.current) {
+        setRectangles((prev) => [...prev, newRect]);
       }
-    })
+    });
 
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
@@ -187,7 +193,7 @@ const Canvas = () => {
       socket.off("live-users");
       socket.off("test message received");
       socket.off("drawing");
-      socket.off('drawing-rectangle')
+      socket.off("drawing-rectangle");
       socket.off("initial-canvas");
     };
   }, []);
@@ -204,16 +210,16 @@ const Canvas = () => {
       y: (pointer.y - stage.y()) / stage.scaleY(),
     };
 
-    if (tool === 'rectangle' && currentRect) {
-      const width = pos.x - currentRect.x
-      const height = pos.y - currentRect.y
+    if (tool === "rectangle" && currentRect) {
+      const width = pos.x - currentRect.x;
+      const height = pos.y - currentRect.y;
 
       setCurrentRect({
         ...currentRect,
         width,
-        height
-      })
-      return
+        height,
+      });
+      return;
     }
 
     setLiveLine({
@@ -225,17 +231,17 @@ const Canvas = () => {
   const handleMouseUp = () => {
     isDrawing.current = false;
 
-    if (tool === 'rectangle' && currentRect) {
+    if (tool === "rectangle" && currentRect) {
       const finalizedRect = {
         ...currentRect,
         canvas_id,
-        socketIdRef: socketIdRef.current
-      }
+        socketIdRef: socketIdRef.current,
+      };
 
-      setRectangles((prev) => [...prev, finalizedRect])
-      socket.emit('drawing-rectangle', finalizedRect)
-      setCurrentRect(null)
-      return
+      setRectangles((prev) => [...prev, finalizedRect]);
+      socket.emit("drawing-rectangle", finalizedRect);
+      setCurrentRect(null);
+      return;
     }
 
     if (liveLine && liveLine.points.length > 0) {
@@ -245,8 +251,6 @@ const Canvas = () => {
     requestAnimationFrame(() => {
       setLiveLine(null);
     });
-
-    
   };
 
   const handleExport = () => {
@@ -297,7 +301,7 @@ const Canvas = () => {
                   points={line.points}
                   stroke={line.colour}
                   strokeWidth={line.strokeWidth}
-                  opacity={line.tool === 'eraser' ? 1 : line.opacity}
+                  opacity={line.tool === "eraser" ? 1 : line.opacity}
                   tension={0.5}
                   lineCap="round"
                   lineJoin="round"
@@ -311,7 +315,7 @@ const Canvas = () => {
                 points={liveLine.points}
                 stroke={liveLine.colour}
                 strokeWidth={liveLine.strokeWidth}
-                opacity={liveLine.tool === 'eraser' ? 1 : liveLine.opacity}
+                opacity={liveLine.tool === "eraser" ? 1 : liveLine.opacity}
                 tension={0.5}
                 lineCap="round"
                 lineJoin="round"

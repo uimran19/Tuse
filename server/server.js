@@ -3,8 +3,6 @@ const { createServer } = require("node:http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
-
-
 const getInspiration = require("./controllers/getInspiration");
 
 const app = express();
@@ -21,7 +19,6 @@ app.get("/", (req, res) => res.send("Hello World!"));
 app.get("/inspiration/:date", (req, res, next) => {
   getInspiration(req, res, next);
 });
-
 
 const io = new Server(server, {
   cors: {
@@ -49,7 +46,7 @@ io.on("connection", (socket) => {
     if (!(roomId in knownCanvases)) {
       knownCanvases[roomId] = {
         lines: [],
-        rectangles: []
+        rectangles: [],
       };
     }
     socket.join(roomId);
@@ -63,7 +60,7 @@ io.on("connection", (socket) => {
       if (!(roomId in knownCanvases)) {
         knownCanvases[roomId] = {
           lines: [],
-          rectangles: []
+          rectangles: [],
         };
       }
       socket.join(roomId);
@@ -92,11 +89,11 @@ io.on("connection", (socket) => {
     io.to(data.canvas_id).emit("drawing", data);
   });
 
-  socket.on('drawing-rectangle', (rectangleData) => {
-
-    knownCanvases[rectangleData.canvas_id].rectangles.push(rectangleData)
-    io.to(rectangleData.canvas_id).emit('drawing-rectangle', rectangleData)
-  })
+  socket.on("drawing-rectangle", (rectangleData) => {
+    console.log(rectangleData);
+    knownCanvases[rectangleData.canvas_id].rectangles.push(rectangleData);
+    io.to(rectangleData.canvas_id).emit("drawing-rectangle", rectangleData);
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
