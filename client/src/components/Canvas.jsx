@@ -398,6 +398,9 @@ const Canvas = () => {
           setColour={setColour}
           opacity={opacity}
           setOpacity={setOpacity}
+          handleExport={handleExport}
+          downloadFile={downloadFile}
+          setCanvasWithFile={setCanvasWithFile}
         />
         <Stage
           width={window.innerWidth}
