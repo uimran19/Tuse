@@ -5,6 +5,7 @@ import Toolbar from "./Toolbar";
 import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
 import BrushStrokes from "./BrushStrokes";
+import InspirationLayer from "./Testing/InspirationLayer";
 
 const Canvas = () => {
   let params = useParams();
@@ -581,6 +582,7 @@ const Canvas = () => {
               };
             }}
           >
+            <InspirationLayer />
             <Layer>
               <Rect
                 x={0}
