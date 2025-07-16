@@ -1,13 +1,14 @@
 import { BsConeStriped } from "react-icons/bs";
 import { Image, Layer, Stage } from "react-konva";
 import useImage from "use-image";
+import Ink01 from "../assets/brushes/Ink-01.png";
 
 export default function BrushStrokes({ lines, liveLine }) {
   const brushLookup = {
-    brush: "Ink-01.png",
+    brush: Ink01,
   };
   const brushUrl = (currentBrush) => `/src/assets/brushes/${currentBrush}`;
-  const [brushTexture] = useImage(brushUrl(brushLookup.brush));
+  const [brushTexture] = useImage(brushLookup.brush);
   //   const brushUrl = "https://konvajs.github.io/assets/yoda.jpg";
 
   function drawLines(lines) {

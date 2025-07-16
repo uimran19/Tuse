@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
     console.log("User connected to ", roomId, "Known rooms: ", knownRooms);
     if (roomExists(roomId)) {
       if (!(roomId in knownCanvases)) {
-        knownCanvases[roomId] = [];
+        knownCanvases[roomId] = { lines: [], rectangles: [] };
       }
       socket.join(roomId);
       socket.emit("roomJoined", roomId);
@@ -79,9 +79,15 @@ io.on("connection", (socket) => {
 
   socket.on("drawing", (data) => {
     if (!data || !data.canvas_id || !roomExists(data.canvas_id)) return;
-
-    knownCanvases[data.canvas_id].push(data);
+    console.log(knownCanvases[data.canvas_id].lines);
+    knownCanvases[data.canvas_id].lines.push(data);
     io.to(data.canvas_id).emit("drawing", data);
+  });
+
+  socket.on("drawing-rectangle", (rectangleData) => {
+    console.log(rectangleData);
+    knownCanvases[rectangleData.canvas_id].rectangles.push(rectangleData);
+    io.to(rectangleData.canvas_id).emit("drawing-rectangle", rectangleData);
   });
 
   socket.on("requestUndo", (data) => {
