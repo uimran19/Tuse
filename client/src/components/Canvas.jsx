@@ -121,7 +121,18 @@ const Canvas = () => {
       const clampY = Math.max(0, Math.min(canvasHeight, pos.y));
 
       if (tool === "rectangle") {
-        setCurrentRect({});
+        setCurrentRect({
+          canvas_id,
+          x: pos.x,
+          y: pos.y,
+          width: 0,
+          height: 0,
+          // fill: 'black',
+          stroke: "black",
+          strokeWidth,
+          opacity,
+          tool: "rectangle",
+        });
       }
       setLiveLine({
         canvas_id,
@@ -298,6 +309,18 @@ const Canvas = () => {
       y: (pointer.y - stage.y()) / oldScale,
     };
 
+    if (tool === "rectangle" && currentRect) {
+      const width = pos.x - currentRect.x;
+      const height = pos.y - currentRect.y;
+
+      setCurrentRect({
+        ...currentRect,
+        width,
+        height,
+      });
+      return;
+    }
+
     setLiveLine({
       ...liveLine,
       points: [...liveLine.points, pos.x, pos.y],
@@ -309,6 +332,19 @@ const Canvas = () => {
 
     lastCenter.current = null;
     lastDist.current = 0;
+
+    if (tool === "rectangle" && currentRect) {
+      const finalizedRect = {
+        ...currentRect,
+        canvas_id,
+        socketIdRef: socketIdRef.current,
+      };
+
+      setRectangles((prev) => [...prev, finalizedRect]);
+      socket.emit("drawing-rectangle", finalizedRect);
+      setCurrentRect(null);
+      return;
+    }
 
     if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
@@ -371,8 +407,9 @@ const Canvas = () => {
       socket.emit("get-initial-canvas", canvas_id);
     }
 
-    socket.on("initial-canvas", (linesHistory) => {
-      setLines(linesHistory);
+    socket.on("initial-canvas", (canvasHistory) => {
+      setLines(canvasHistory.lines);
+      setRectangles(canvasHistory.rectangles);
     });
 
     socket.on("live-users", (currUsers) => {
@@ -382,6 +419,12 @@ const Canvas = () => {
     socket.on("drawing", (newLine) => {
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
+      }
+    });
+
+    socket.on("drawing-rectangle", (newRect) => {
+      if (newRect.socketIdRef !== socketIdRef.current) {
+        setRectangles((prev) => [...prev, newRect]);
       }
     });
 
@@ -413,6 +456,7 @@ const Canvas = () => {
       socket.off("initial-canvas");
       socket.off("live-users");
       socket.off("drawing");
+      socket.off("drawing-rectangle");
 
       socket.off("undoCommand");
       socket.off("roomJoined");
@@ -558,6 +602,33 @@ const Canvas = () => {
                       ? "destination-out"
                       : "source-over"
                   }
+                />
+              )}
+              {rectangles.map((rect, i) => (
+                <Rect
+                  key={`rect-${i}`}
+                  x={rect.x}
+                  y={rect.y}
+                  width={rect.width}
+                  height={rect.height}
+                  // fill={rect.fill}
+                  stroke={rect.stroke}
+                  strokeWidth={rect.strokeWidth}
+                  opacity={rect.opacity}
+                />
+              ))}
+
+              {currentRect && (
+                <Rect
+                  x={currentRect.x}
+                  y={currentRect.y}
+                  width={currentRect.width}
+                  height={currentRect.height}
+                  fill={currentRect.fill}
+                  stroke={currentRect.stroke}
+                  strokeWidth={currentRect.strokeWidth}
+                  opacity={currentRect.opacity}
+                  // dash={[4, 2]}
                 />
               )}
               <BrushStrokes lines={lines} liveLine={liveLine} />
