@@ -372,15 +372,15 @@ const Canvas = () => {
         canvas_id,
         socketIdRef: socketIdRef.current,
       };
+      setLastToolUsed((prevTools) => [...prevTools, "rectangle"]);
 
       setRectangles((prev) => [...prev, finalizedRect]);
       socket.emit("drawing-rectangle", finalizedRect);
       setCurrentRect(null);
-      return;
-    }
-
-    if (liveLine && liveLine.points.length > 0) {
+    } else if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
+
+      setLastToolUsed((prevTools) => [...prevTools, liveLine.tool]);
       setLines((prevLines) => [...prevLines, liveLine]);
     }
     requestAnimationFrame(() => {
@@ -398,36 +398,71 @@ const Canvas = () => {
   }, [stageScale, stagePos]);
 
   const [redoBuffer, setRedoBuffer] = useState([]);
+  const [lastToolUsed, setLastToolUsed] = useState([]);
 
   const handleUndo = (e) => {
     let lastUndo = [];
-    const newArr = [...lines];
+    console.log(rectangles);
+    const lastTool = lastToolUsed[lastToolUsed.length - 1];
 
-    for (let i = lines.length - 1; i >= 0; i--) {
-      if (
-        lines[i].socketIdRef.current === socketIdRef.current &&
-        newArr[i].points.length > 2
-      ) {
-        lastUndo = newArr[i];
-        setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
-        break;
+    if (lastTool !== undefined) {
+      if (lastTool === "rectangle") {
+        const newArr = [...rectangles];
+
+        for (let i = rectangles.length - 1; i >= 0; i--) {
+          console.log(rectangles[i].socketIdRef === socketIdRef.current);
+          if (
+            rectangles[i].socketIdRef === socketIdRef.current &&
+            newArr[i].height !== 0 &&
+            newArr[i].width !== 0
+          ) {
+            lastUndo = { ...newArr[i] };
+
+            newArr[i].width = 0;
+            newArr[i].height = 0;
+
+            setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+            break;
+          }
+        }
+        setLastToolUsed(lastToolUsed.slice(0, -1));
+        setRectangles(newArr);
+      } else {
+        const newArr = [...lines];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          if (
+            lines[i].socketIdRef.current === socketIdRef.current &&
+            newArr[i].points.length > 2
+          ) {
+            lastUndo = newArr[i];
+            setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+            break;
+          }
+        }
+
+        console.log(redoBuffer);
+
+        setLines(newArr);
+        setLastToolUsed(lastToolUsed.slice(0, -1));
       }
-    }
-
-    console.log(redoBuffer);
-
-    setLines(newArr);
-
-    socket.emit("requestUndo", { canvas_id, socketIdRef });
+      socket.emit("requestUndo", { canvas_id, socketIdRef, lastTool });
+    } else return;
   };
 
   const handleRedo = (e) => {
-    console.log(redoBuffer);
     if (redoBuffer.length > 0) {
       const liveBuffer = [...redoBuffer];
-      setLines((prevLines) => [...prevLines, liveBuffer[0]]);
+      if (liveBuffer[0].tool === "rectangle") {
+        setRectangles((prevRectangles) => [...prevRectangles, liveBuffer[0]]);
+        socket.emit("drawing-rectangle", liveBuffer[0]);
+      } else {
+        setLines((prevLines) => [...prevLines, liveBuffer[0]]);
+        socket.emit("drawing", liveBuffer[0]);
+      }
       setRedoBuffer(liveBuffer.slice(1));
-      socket.emit("drawing", liveBuffer[0]);
+      console.log(redoBuffer);
+
+      setLastToolUsed((prevTools) => [...prevTools, liveBuffer[0].tool]);
     }
   };
 
