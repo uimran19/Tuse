@@ -1,6 +1,6 @@
 const { createServer } = require("node:http");
 const { Server } = require("socket.io");
-const app = require("./app")
+const app = require("./app");
 
 const server = createServer(app);
 
@@ -63,27 +63,55 @@ io.on("connection", (socket) => {
 
   socket.on("drawing", (data) => {
     if (!data || !data.canvas_id || !roomExists(data.canvas_id)) return;
-    console.log(knownCanvases[data.canvas_id].lines);
     knownCanvases[data.canvas_id].lines.push(data);
     io.to(data.canvas_id).emit("drawing", data);
   });
 
   socket.on("drawing-rectangle", (rectangleData) => {
-    console.log(rectangleData);
     knownCanvases[rectangleData.canvas_id].rectangles.push(rectangleData);
     io.to(rectangleData.canvas_id).emit("drawing-rectangle", rectangleData);
   });
 
   socket.on("requestUndo", (data) => {
-    for (let i = knownCanvases[data.canvas_id].length - 1; i >= 0; i--) {
-      if (
-        knownCanvases[data.canvas_id][i].socketIdRef.current ===
-          data.socketIdRef.current &&
-        knownCanvases[data.canvas_id][i].points.length > 2
-      ) {
-        knownCanvases[data.canvas_id][i].points = [0, 0];
+    //gets canvas_id, socketIdRef and the last used tool (string)
 
-        break;
+    if (data.lastTool !== "rectangle") {
+      for (
+        let i = knownCanvases[data.canvas_id].lines.length - 1;
+        i >= 0;
+        i--
+      ) {
+        if (
+          knownCanvases[data.canvas_id].lines[i].socketIdRef.current ===
+            data.socketIdRef.current &&
+          knownCanvases[data.canvas_id].lines[i].points.length > 2
+        ) {
+          knownCanvases[data.canvas_id].lines[i].points = [0, 0];
+          break;
+        }
+      }
+    } else {
+      // console.log(knownCanvases[data.canvas_id].rectangles);
+      for (
+        // let i = knownCanvases[data.canvas_id]{/* LINES OR RECTANGLES*/ }.length - 1;
+        let i = knownCanvases[data.canvas_id].rectangles.length - 1;
+        i >= 0;
+        i--
+      ) {
+        console.log(knownCanvases[data.canvas_id].rectangles[i].socketIdRef);
+        console.log(data.socketIdRef.current);
+        if (
+          knownCanvases[data.canvas_id].rectangles[i].socketIdRef ===
+            data.socketIdRef.current &&
+          knownCanvases[data.canvas_id].rectangles[i].width !== 0 &&
+          knownCanvases[data.canvas_id].rectangles[i].height !== 0
+        ) {
+          console.log("rectangle NOT 0,0");
+          knownCanvases[data.canvas_id].rectangles[i].width = 0;
+          knownCanvases[data.canvas_id].rectangles[i].height = 0;
+
+          break;
+        }
       }
     }
 

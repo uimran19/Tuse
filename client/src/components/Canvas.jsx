@@ -370,6 +370,9 @@ const Canvas = () => {
         socketIdRef: socketIdRef.current,
       };
 
+      setLastToolUsed((prevTools) => [...prevTools, currentRect.tool]);
+
+      console.log(currentRect);
       setRectangles((prev) => [...prev, finalizedRect]);
       socket.emit("drawing-rectangle", finalizedRect);
       setCurrentRect(null);
@@ -378,6 +381,8 @@ const Canvas = () => {
 
     if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
+      console.log(liveLine);
+      setLastToolUsed((prevTools) => [...prevTools, liveLine.tool]);
       setLines((prevLines) => [...prevLines, liveLine]);
     }
     requestAnimationFrame(() => {
@@ -396,26 +401,57 @@ const Canvas = () => {
 
   const [redoBuffer, setRedoBuffer] = useState([]);
 
+  const [lastToolUsed, setLastToolUsed] = useState([]);
+
   const handleUndo = (e) => {
     let lastUndo = [];
-    const newArr = [...lines];
 
-    for (let i = lines.length - 1; i >= 0; i--) {
-      if (
-        lines[i].socketIdRef.current === socketIdRef.current &&
-        newArr[i].points.length > 2
-      ) {
-        lastUndo = newArr[i];
-        setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
-        break;
+    //(outside of function) store the last locally used tool
+    //find the last element of the array with the user's socketIdRef that contains the tool when handleUndo is called
+    // use functionality below
+
+    const lastTool = lastToolUsed[lastToolUsed.length - 1];
+
+    if (lastTool !== undefined) {
+      console.log(lastTool);
+
+      if (lastTool === "rectangle") {
+        const newArr = [...rectangles];
+
+        for (let i = rectangles.length - 1; i >= 0; i--) {
+          if (
+            rectangles[i].socketIdRef.current === socketIdRef.current &&
+            newArr[i].height !== 0 &&
+            newArr[i].width !== 0
+          ) {
+            lastUndo = newArr[i];
+            setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+            break;
+          }
+        }
+
+        setRectangles(newArr);
+      } else {
+        const newArr = [...lines];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          if (
+            lines[i].socketIdRef.current === socketIdRef.current &&
+            newArr[i].points.length > 2
+          ) {
+            lastUndo = newArr[i];
+            setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+            break;
+          }
+        }
+
+        console.log(redoBuffer);
+
+        setLines(newArr);
+
+        //also sends the tool
       }
-    }
-
-    console.log(redoBuffer);
-
-    setLines(newArr);
-
-    socket.emit("requestUndo", { canvas_id, socketIdRef });
+      socket.emit("requestUndo", { canvas_id, socketIdRef, lastTool });
+    } else return;
   };
 
   const handleRedo = (e) => {
