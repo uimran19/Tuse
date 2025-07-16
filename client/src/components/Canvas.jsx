@@ -91,6 +91,119 @@ const Canvas = () => {
     }
   };
 
+  const handleTouchStart = (e) => {
+    const stage = stageRef.current;
+    stage.draggable(false);
+    const touches = e.evt.touches;
+
+    if (touches.length > 1) {
+      stage.draggable(true);
+      isDrawing.current = false;
+    } else {
+      e.evt.preventDefault();
+      isDrawing.current = true;
+      const pointer = stage.getPointerPosition();
+      const pos = {
+        x: (pointer.x - stage.x()) / stage.scaleX(),
+        y: (pointer.y - stage.y()) / stage.scaleY(),
+      };
+      setLiveLine({
+        canvas_id,
+        tool,
+        points: [pos.x, pos.y],
+        socketIdRef,
+        strokeWidth,
+        colour,
+      });
+    }
+  };
+
+  const lastCenter = useRef(null);
+  const lastDist = useRef(0);
+  const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
+  const [stageScale, setStageScale] = useState({ x: 1, y: 1 });
+
+  const getDistance = (p1, p2) => {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+  };
+
+  const getCenter = (p1, p2) => {
+    return {
+      x: (p1.x + p2.x) / 2,
+      y: (p1.y + p2.y) / 2,
+    };
+  };
+
+  const handleTouchMove = (e) => {
+    e.evt.preventDefault();
+    e.evt.stopPropagation();
+    const touches = e.evt.touches;
+
+    if (touches.length === 1 && isDrawing.current === true) {
+      const stage = stageRef.current;
+      const pointer = stage.getPointerPosition();
+
+      const pos = {
+        x: (pointer.x - stage.x()) / stage.scaleX(),
+        y: (pointer.y - stage.y()) / stage.scaleY(),
+      };
+
+      setLiveLine({
+        ...liveLine,
+        points: [...liveLine.points, pos.x, pos.y],
+      });
+
+      return;
+    } else {
+      const touch1 = e.evt.touches[0];
+      const touch2 = e.evt.touches[1];
+      const stage = e.target.getStage();
+
+      if (!touch1 || !touch2) return;
+
+      const p1 = {
+        x: touch1.clientX,
+        y: touch1.clientY,
+      };
+      const p2 = {
+        x: touch2.clientX,
+        y: touch2.clientY,
+      };
+      const newCenter = getCenter(p1, p2);
+      const dist = getDistance(p1, p2);
+
+      if (!lastCenter.current) {
+        lastCenter.current = newCenter;
+        return;
+      }
+
+      if (!lastDist.current) {
+        lastDist.current = dist;
+        return;
+      }
+      const scale = dist / lastDist.current;
+      const newScale = stageScale.x * scale;
+
+      const pointTo = {
+        x: (newCenter.x - stagePos.x) / stageScale.x,
+        y: (newCenter.y - stagePos.y) / stageScale.x,
+      };
+
+      const dx = newCenter.x - lastCenter.current.x;
+      const dy = newCenter.y - lastCenter.current.y;
+
+      setStageScale({ x: newScale, y: newScale });
+
+      setStagePos({
+        x: newCenter.x - pointTo.x * newScale + dx,
+        y: newCenter.y - pointTo.y * newScale + dy,
+      });
+
+      lastCenter.current = newCenter;
+      lastDist.current = dist;
+    }
+  };
+
   const handleWheelScroll = (e) => {
     e.evt.preventDefault();
     const stage = stageRef.current;
@@ -121,51 +234,83 @@ const Canvas = () => {
     stage.position(newPos);
   };
 
-  const handleTouchStart = (e) => {
+  const handleMouseMove = (e) => {
+    if (!isDrawing.current) {
+      return;
+    }
     const stage = stageRef.current;
-    stage.draggable(false);
-    const touches = e.evt.touches;
+    const oldScale = stage.scaleX();
+    const pointer = stage.getPointerPosition();
 
-    if (touches.length > 1) {
-      stage.draggable(true);
-      isDrawing.current = false;
-    } else {
-      e.evt.preventDefault();
-      isDrawing.current = true;
-      const pointer = stage.getPointerPosition();
-      const pos = {
-        x: (pointer.x - stage.x()) / stage.scaleX(),
-        y: (pointer.y - stage.y()) / stage.scaleY(),
-      };
-      setLiveLine({
-        canvas_id,
-        tool,
-        points: [pos.x, pos.y],
-        socketIdRef,
-        strokeWidth,
-        colour,
-      });
+    const pos = {
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
+    };
+
+    setLiveLine({
+      ...liveLine,
+      points: [...liveLine.points, pos.x, pos.y],
+    });
+  };
+  const handleMouseUp = () => {
+    isDrawing.current = false;
+
+    lastCenter.current = null;
+    lastDist.current = 0;
+
+    if (liveLine && liveLine.points.length > 0) {
+      socket.emit("drawing", liveLine);
+      setLines((prevLines) => [...prevLines, liveLine]);
+    }
+    requestAnimationFrame(() => {
+      setLiveLine(null);
+    });
+  };
+
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (stage) {
+      stage.scale(stageScale);
+      stage.position(stagePos);
+      stage.batchDraw();
+    }
+  }, [stageScale, stagePos]);
+
+  const [redoBuffer, setRedoBuffer] = useState([]);
+
+  const handleUndo = (e) => {
+    let lastUndo = [];
+    const newArr = [...lines];
+
+    for (let i = lines.length - 1; i >= 0; i--) {
+      if (
+        lines[i].socketIdRef.current === socketIdRef.current &&
+        newArr[i].points.length > 2
+      ) {
+        lastUndo = newArr[i];
+        setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+        break;
+      }
+    }
+
+    console.log(redoBuffer);
+
+    setLines(newArr);
+
+    socket.emit("requestUndo", { canvas_id, socketIdRef });
+  };
+
+  const handleRedo = (e) => {
+    console.log(redoBuffer);
+    if (redoBuffer.length > 0) {
+      const liveBuffer = [...redoBuffer];
+      setLines((prevLines) => [...prevLines, liveBuffer[0]]);
+      setRedoBuffer(liveBuffer.slice(1));
+      socket.emit("drawing", liveBuffer[0]);
     }
   };
 
-  const handleTouchMove = (e) => {
-    e.evt.preventDefault();
-
-    if (isDrawing.current === true) {
-      const stage = stageRef.current;
-      const pointer = stage.getPointerPosition();
-
-      const pos = {
-        x: (pointer.x - stage.x()) / stage.scaleX(),
-        y: (pointer.y - stage.y()) / stage.scaleY(),
-      };
-
-      setLiveLine({
-        ...liveLine,
-        points: [...liveLine.points, pos.x, pos.y],
-      });
-    }
-  };
+  const [undoActivated, setUndoActivate] = useState(false);
 
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
@@ -177,7 +322,6 @@ const Canvas = () => {
     });
 
     socket.on("drawing", (newLine) => {
-      console.log(newLine.socketIdRef.current);
       if (newLine.socketIdRef.current !== socketIdRef.current) {
         setLines((previous) => [...previous, newLine]);
       }
@@ -206,36 +350,6 @@ const Canvas = () => {
       socket.off("initial-canvas");
     };
   }, []);
-
-  const handleMouseMove = (e) => {
-    if (!isDrawing.current) {
-      return;
-    }
-    const stage = stageRef.current;
-    const pointer = stage.getPointerPosition();
-
-    const pos = {
-      x: (pointer.x - stage.x()) / stage.scaleX(),
-      y: (pointer.y - stage.y()) / stage.scaleY(),
-    };
-
-    setLiveLine({
-      ...liveLine,
-      points: [...liveLine.points, pos.x, pos.y],
-    });
-  };
-
-  const handleMouseUp = () => {
-    isDrawing.current = false;
-
-    if (liveLine && liveLine.points.length > 0) {
-      socket.emit("drawing", liveLine);
-      setLines((prevLines) => [...prevLines, liveLine]);
-    }
-    requestAnimationFrame(() => {
-      setLiveLine(null);
-    });
-  };
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
