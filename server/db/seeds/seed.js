@@ -56,7 +56,13 @@ function insertArtworks(artworks) {
   return db.query(artworksInsertString);
 }
 
+const maxPages = 10;
+
 function seed(endPage, pageNumber = 1) {
+    if ((endPage - pageNumber) > maxPages) {
+    throw new Error(`Cannot fetch more than ${maxPages} pages from the API`);
+  }
+  
   createTable();
 
   function getImageIdsRecursion(pageNumber, endPage, artworks = []) {

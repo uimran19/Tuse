@@ -1,5 +1,6 @@
+jest.setTimeout(30000);
+
 const db = require("../db/connection");
-const runSeed = require("../db/seeds/run-seed");
 const seed = require("../db/seeds/seed");
 
 beforeAll(() => seed());
