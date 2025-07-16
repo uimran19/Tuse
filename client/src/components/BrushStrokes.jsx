@@ -60,29 +60,3 @@ export default function BrushStrokes({ lines, liveLine }) {
     </>
   );
 }
-
-function TestStage() {
-  return (
-    <Stage width={window.innerWidth} height={window.innerHeight}>
-      <TestLayer />
-    </Stage>
-  );
-}
-
-function TestLayerCopy({ lines }) {
-  //   const url = "src/assets/brushes/Ink-01.png";
-  const url = "https://konvajs.github.io/assets/yoda.jpg";
-  const [brushTexture] = useImage(url);
-  const scale = 5;
-
-  return (
-    <Layer>
-      <Image
-        image={brushTexture}
-        x={150}
-        y={150}
-        scale={{ x: scale, y: scale }}
-      />
-    </Layer>
-  );
-}
