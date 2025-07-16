@@ -44,7 +44,7 @@ io.on("connection", (socket) => {
       knownRooms.push(roomId);
     }
     if (!(roomId in knownCanvases)) {
-      knownCanvases[roomId] = [];
+      knownCanvases[roomId] = { lines: [], rectangles: [] };
     }
     socket.join(roomId);
     socket.emit("roomJoined", roomId);
