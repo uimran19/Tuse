@@ -2,7 +2,9 @@ import { Image, Layer } from "react-konva";
 import styled from "styled-components";
 import useImage from "use-image";
 
-const StyledLayer = styled(Layer)``;
+const StyledLayer = styled(Layer)`
+  pointer-events: none;
+`;
 
 export default function InspirationLayer() {
   //   const url = "src/assets/brushes/Ink-01.png";

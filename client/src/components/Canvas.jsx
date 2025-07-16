@@ -589,7 +589,6 @@ const Canvas = () => {
                 y={0}
                 width={2000}
                 height={1200}
-                fill="white"
                 listening={false}
               ></Rect>
               {lines &&
