@@ -4,6 +4,7 @@ import { socket } from "../socket";
 import Toolbar from "./Toolbar";
 import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
+import BrushStrokes from "./BrushStrokes";
 
 const Canvas = () => {
   let params = useParams();
@@ -516,27 +517,39 @@ const Canvas = () => {
                 listening={false}
               ></Rect>
               {lines &&
-                lines.map((line, i) => (
-                  <Line
-                    key={i}
-                    points={line.points}
-                    stroke={line.colour}
-                    strokeWidth={line.strokeWidth}
-                    opacity={line.tool === "eraser" ? 1 : line.opacity}
-                    tension={0.5}
-                    lineCap="round"
-                    lineJoin="round"
-                    globalCompositeOperation={
-                      line.tool === "eraser" ? "destination-out" : "source-over"
-                    }
-                  />
-                ))}
+                lines.map((line, i) => {
+                  if (line.tool !== "brush") {
+                    return (
+                      <Line
+                        key={i}
+                        points={line.points}
+                        stroke={line.colour}
+                        strokeWidth={line.strokeWidth}
+                        opacity={line.tool === "eraser" ? 1 : line.opacity}
+                        tension={0.5}
+                        lineCap="round"
+                        lineJoin="round"
+                        globalCompositeOperation={
+                          line.tool === "eraser"
+                            ? "destination-out"
+                            : "source-over"
+                        }
+                      />
+                    );
+                  }
+                })}
               {liveLine && (
                 <Line
                   points={liveLine.points}
                   stroke={liveLine.colour}
                   strokeWidth={liveLine.strokeWidth}
-                  opacity={liveLine.tool === "eraser" ? 1 : liveLine.opacity}
+                  opacity={
+                    liveLine.tool === "eraser"
+                      ? 1
+                      : liveLine.tool === "brush"
+                      ? 0
+                      : liveLine.opacity
+                  }
                   tension={0.5}
                   lineCap="round"
                   lineJoin="round"
@@ -547,6 +560,7 @@ const Canvas = () => {
                   }
                 />
               )}
+              <BrushStrokes lines={lines} liveLine={liveLine} />
             </Layer>
           </Stage>
         </div>
