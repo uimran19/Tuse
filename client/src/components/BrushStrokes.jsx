@@ -7,11 +7,12 @@ export default function BrushStrokes({ lines, liveLine }) {
   const brushLookup = {
     brush: Ink01,
   };
-  const brushUrl = (currentBrush) => `/src/assets/brushes/${currentBrush}`;
+  // const brushUrl = (currentBrush) => `/src/assets/brushes/${currentBrush}`;
   const [brushTexture] = useImage(brushLookup.brush);
   //   const brushUrl = "https://konvajs.github.io/assets/yoda.jpg";
 
   function drawLines(lines) {
+    if (!Array.isArray(lines) || !brushTexture) return null;
     const brushStrokes = lines.filter((line) => {
       const { tool } = line;
       return brushLookup?.[tool];
