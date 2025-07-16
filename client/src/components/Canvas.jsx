@@ -4,7 +4,6 @@ import { socket } from "../socket";
 import Toolbar from "./Toolbar";
 import { useParams, Link } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
-import BrushStrokes from "./BrushStrokes";
 
 const Canvas = () => {
   let params = useParams();
@@ -23,13 +22,16 @@ const Canvas = () => {
   const [rectangles, setRectangles] = useState([]);
   const [currentRect, setCurrentRect] = useState(null);
 
+  const canvasWidth = 2000;
+  const canvasHeight = 1200;
+
   Konva.dragButtons = [1];
 
   const downloadFile = () => {
     console.log("Lines pre upload --> ", lines);
     const myData = lines;
     console.log(myData);
-    const fileName = "my-file";
+    const fileName = "MyDrawing";
     const json = JSON.stringify(myData, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const href = URL.createObjectURL(blob);
@@ -62,6 +64,7 @@ const Canvas = () => {
   };
 
   const handleMouseDown = (e) => {
+    setRedoBuffer([]);
     const stage = stageRef.current;
 
     if (e.evt.button === 1) {
@@ -76,13 +79,17 @@ const Canvas = () => {
         x: (pointer.x - stage.x()) / stage.scaleX(),
         y: (pointer.y - stage.y()) / stage.scaleY(),
       };
+
+      const clampX = Math.max(0, Math.min(canvasWidth, pos.x));
+      const clampY = Math.max(0, Math.min(canvasHeight, pos.y));
+
       if (tool === "rectangle") {
         setCurrentRect({});
       }
       setLiveLine({
         canvas_id,
         tool,
-        points: [pos.x, pos.y],
+        points: [clampX, clampY],
         socketIdRef,
         strokeWidth,
         colour,
@@ -222,7 +229,13 @@ const Canvas = () => {
     }
 
     const scaleBy = 1.2;
-    const newScale = direction < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+    let newScale = direction < 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+    const minScaleX = stage.width() / canvasWidth;
+    const minScaleY = stage.height() / canvasHeight;
+
+    const minScale = Math.max(minScaleX, minScaleY);
+    newScale = Math.max(newScale, minScale);
 
     stage.scale({ x: newScale, y: newScale });
 
@@ -232,6 +245,7 @@ const Canvas = () => {
     };
 
     stage.position(newPos);
+    stage.batchDraw();
   };
 
   const handleMouseMove = (e) => {
@@ -252,6 +266,7 @@ const Canvas = () => {
       points: [...liveLine.points, pos.x, pos.y],
     });
   };
+
   const handleMouseUp = () => {
     isDrawing.current = false;
 
@@ -315,6 +330,7 @@ const Canvas = () => {
   useEffect(() => {
     socket.on("initial-canvas", (linesHistory) => {
       setLines(linesHistory);
+      console.log(lines);
     });
 
     socket.on("live-users", (currUsers) => {
@@ -327,14 +343,23 @@ const Canvas = () => {
       }
     });
 
+    socket.on("undoCommand", (data) => {
+      handleReceivedUndo(data.socketIdRef);
+    });
+
+    socket.on("roomJoined", (roomId) => {
+      console.log(`room joined OK: ${roomId}`);
+    });
+
     socket.on("connect", () => {
       socketIdRef.current = socket.id;
       socket.emit("joinRoomRequest", canvas_id);
       socket.emit("get-initial-canvas", canvas_id);
     });
 
-    socket.on("roomJoined", (roomId) => {
-      console.log(`room joined OK: ${roomId}`);
+    socket.on("connect-error", () => {
+      console.log("connection error");
+      socket.connect();
     });
 
     socket.on("roomJoinError", (err) => {
@@ -349,46 +374,40 @@ const Canvas = () => {
       socket.off("drawing");
       socket.off("initial-canvas");
     };
-  }, []);
+  }, [undoActivated]);
 
   const handleExport = () => {
     const dataURL = stageRef.current.toDataURL({
+      x: 0,
+      y: 0,
+
+      width: 2000,
+      height: 1200,
       pixelRatio: 2,
     });
 
     const link = document.createElement("a");
-    link.download = "stage.png";
+    link.download = "myDrawing.png";
     link.href = dataURL;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  function TuseLine({ line }) {
-    return (
-      <Line
-        points={line.points}
-        stroke={line.colour}
-        strokeWidth={line.strokeWidth}
-        opacity={
-          line.tool === "eraser" ? 1 : line.tool === "brush" ? 0 : line.opacity
-        }
-        tension={0.5}
-        lineCap="round"
-        lineJoin="round"
-        globalCompositeOperation={
-          line.tool === "eraser" ? "destination-out" : "source-over"
-        }
-      />
-    );
-  }
-
   if (isValidRoom)
     return (
-      <div>
+      <div
+        style={{
+          backgroundColor: "#edebdd",
+          width: "100vw",
+          height: "95vh",
+        }}
+      >
         <button onClick={handleExport}>Download</button>
         <button onClick={downloadFile}>Download Editable</button>
         <input type="file" onChange={setCanvasWithFile} />
+        <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleRedo}>Redo</button>
 
         <Toolbar
           tool={tool}
@@ -399,25 +418,89 @@ const Canvas = () => {
           opacity={opacity}
           setOpacity={setOpacity}
         />
-        <Stage
-          width={window.innerWidth}
-          height={window.innerHeight}
-          onMouseDown={handleMouseDown}
-          onMousemove={handleMouseMove}
-          onMouseup={handleMouseUp}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleMouseUp}
-          onWheel={handleWheelScroll}
-          ref={stageRef}
-          draggable
+
+        <div
+          style={{
+            display: "flex",
+            flex: "1",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          <Layer>
-            <BrushStrokes lines={lines} liveLine={liveLine} />
-            {lines && lines.map((line, i) => <TuseLine key={i} line={line} />)}
-            {liveLine && <TuseLine line={liveLine} />}
-          </Layer>
-        </Stage>
+          <Stage
+            width={canvasWidth}
+            height={canvasHeight}
+            onMouseDown={handleMouseDown}
+            onMousemove={handleMouseMove}
+            onMouseup={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleMouseUp}
+            onWheel={handleWheelScroll}
+            ref={stageRef}
+            draggable
+            dragBoundFunc={(pos) => {
+              const scale = stageRef.current.scale();
+              const stage = stageRef.current;
+
+              const canvasScaledWidth = canvasWidth * scale.x;
+              const canvasScaledHeight = canvasHeight * scale.y;
+
+              const minX = stage.width() - canvasScaledWidth;
+              const maxX = 0;
+
+              const minY = stage.height() - canvasScaledHeight;
+              const maxY = 0;
+              return {
+                x: Math.max(minX, Math.min(maxX, pos.x)),
+                y: Math.max(minY, Math.min(maxY, pos.y)),
+              };
+            }}
+          >
+            <Layer>
+              <Rect
+                x={0}
+                y={0}
+                width={2000}
+                height={1200}
+                fill="white"
+                listening={false}
+              ></Rect>
+              {lines &&
+                lines.map((line, i) => (
+                  <Line
+                    key={i}
+                    points={line.points}
+                    stroke={line.colour}
+                    strokeWidth={line.strokeWidth}
+                    opacity={line.tool === "eraser" ? 1 : line.opacity}
+                    tension={0.5}
+                    lineCap="round"
+                    lineJoin="round"
+                    globalCompositeOperation={
+                      line.tool === "eraser" ? "destination-out" : "source-over"
+                    }
+                  />
+                ))}
+              {liveLine && (
+                <Line
+                  points={liveLine.points}
+                  stroke={liveLine.colour}
+                  strokeWidth={liveLine.strokeWidth}
+                  opacity={liveLine.tool === "eraser" ? 1 : liveLine.opacity}
+                  tension={0.5}
+                  lineCap="round"
+                  lineJoin="round"
+                  globalCompositeOperation={
+                    liveLine.tool === "eraser"
+                      ? "destination-out"
+                      : "source-over"
+                  }
+                />
+              )}
+            </Layer>
+          </Stage>
+        </div>
       </div>
     );
   else
