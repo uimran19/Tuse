@@ -24,6 +24,7 @@ const Canvas = () => {
   const [rectangles, setRectangles] = useState([]);
   const [currentRect, setCurrentRect] = useState(null);
   const location = useLocation();
+  const [showInspiration, setShowInspiration] = useState(true);
 
   const canvasWidth = 2000;
   const canvasHeight = 1200;
@@ -543,6 +544,8 @@ const Canvas = () => {
           handleExport={handleExport}
           downloadFile={downloadFile}
           setCanvasWithFile={setCanvasWithFile}
+          showInspiration={showInspiration}
+          setShowInspiration={setShowInspiration}
         />
 
         <div
@@ -583,11 +586,13 @@ const Canvas = () => {
               };
             }}
           >
-            <InspirationLayer
-              inspiration={location.state}
-              canvasWidth={canvasWidth}
-              canvasHeight={canvasHeight}
-            />
+            {showInspiration && (
+              <InspirationLayer
+                inspiration={location.state}
+                canvasWidth={canvasWidth}
+                canvasHeight={canvasHeight}
+              />
+            )}
             <Layer>
               <Rect
                 x={0}
