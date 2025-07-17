@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Stage, Layer, Rect, Circle, Line, Text } from "react-konva";
 import { socket } from "../socket";
 import Toolbar from "./Toolbar";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { BsDisplay } from "react-icons/bs";
 import BrushStrokes from "./BrushStrokes";
+import InspirationLayer from "./InspirationLayer";
 
 const Canvas = () => {
   let params = useParams();
@@ -22,6 +23,8 @@ const Canvas = () => {
   const [isValidRoom, setIsValidRoom] = useState(true);
   const [rectangles, setRectangles] = useState([]);
   const [currentRect, setCurrentRect] = useState(null);
+  const location = useLocation();
+  const [showInspiration, setShowInspiration] = useState(true);
 
   const canvasWidth = 2000;
   const canvasHeight = 1200;
@@ -369,15 +372,15 @@ const Canvas = () => {
         canvas_id,
         socketIdRef: socketIdRef.current,
       };
+      setLastToolUsed((prevTools) => [...prevTools, "rectangle"]);
 
       setRectangles((prev) => [...prev, finalizedRect]);
       socket.emit("drawing-rectangle", finalizedRect);
       setCurrentRect(null);
-      return;
-    }
-
-    if (liveLine && liveLine.points.length > 0) {
+    } else if (liveLine && liveLine.points.length > 0) {
       socket.emit("drawing", liveLine);
+
+      setLastToolUsed((prevTools) => [...prevTools, liveLine.tool]);
       setLines((prevLines) => [...prevLines, liveLine]);
     }
     requestAnimationFrame(() => {
@@ -395,36 +398,71 @@ const Canvas = () => {
   }, [stageScale, stagePos]);
 
   const [redoBuffer, setRedoBuffer] = useState([]);
+  const [lastToolUsed, setLastToolUsed] = useState([]);
 
   const handleUndo = (e) => {
     let lastUndo = [];
-    const newArr = [...lines];
+    console.log(rectangles);
+    const lastTool = lastToolUsed[lastToolUsed.length - 1];
 
-    for (let i = lines.length - 1; i >= 0; i--) {
-      if (
-        lines[i].socketIdRef.current === socketIdRef.current &&
-        newArr[i].points.length > 2
-      ) {
-        lastUndo = newArr[i];
-        setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
-        break;
+    if (lastTool !== undefined) {
+      if (lastTool === "rectangle") {
+        const newArr = [...rectangles];
+
+        for (let i = rectangles.length - 1; i >= 0; i--) {
+          console.log(rectangles[i].socketIdRef === socketIdRef.current);
+          if (
+            rectangles[i].socketIdRef === socketIdRef.current &&
+            newArr[i].height !== 0 &&
+            newArr[i].width !== 0
+          ) {
+            lastUndo = { ...newArr[i] };
+
+            newArr[i].width = 0;
+            newArr[i].height = 0;
+
+            setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+            break;
+          }
+        }
+        setLastToolUsed(lastToolUsed.slice(0, -1));
+        setRectangles(newArr);
+      } else {
+        const newArr = [...lines];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          if (
+            lines[i].socketIdRef.current === socketIdRef.current &&
+            newArr[i].points.length > 2
+          ) {
+            lastUndo = newArr[i];
+            setRedoBuffer((prevBuffers) => [lastUndo, ...prevBuffers]);
+            break;
+          }
+        }
+
+        console.log(redoBuffer);
+
+        setLines(newArr);
+        setLastToolUsed(lastToolUsed.slice(0, -1));
       }
-    }
-
-    console.log(redoBuffer);
-
-    setLines(newArr);
-
-    socket.emit("requestUndo", { canvas_id, socketIdRef });
+      socket.emit("requestUndo", { canvas_id, socketIdRef, lastTool });
+    } else return;
   };
 
   const handleRedo = (e) => {
-    console.log(redoBuffer);
     if (redoBuffer.length > 0) {
       const liveBuffer = [...redoBuffer];
-      setLines((prevLines) => [...prevLines, liveBuffer[0]]);
+      if (liveBuffer[0].tool === "rectangle") {
+        setRectangles((prevRectangles) => [...prevRectangles, liveBuffer[0]]);
+        socket.emit("drawing-rectangle", liveBuffer[0]);
+      } else {
+        setLines((prevLines) => [...prevLines, liveBuffer[0]]);
+        socket.emit("drawing", liveBuffer[0]);
+      }
       setRedoBuffer(liveBuffer.slice(1));
-      socket.emit("drawing", liveBuffer[0]);
+      console.log(redoBuffer);
+
+      setLastToolUsed((prevTools) => [...prevTools, liveBuffer[0].tool]);
     }
   };
 
@@ -524,12 +562,6 @@ const Canvas = () => {
           height: "95vh",
         }}
       >
-        <button onClick={handleExport}>Download</button>
-        <button onClick={downloadFile}>Download Editable</button>
-        <input type="file" onChange={setCanvasWithFile} />
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
-
         <Toolbar
           tool={tool}
           setTool={setTool}
@@ -541,6 +573,11 @@ const Canvas = () => {
           handleExport={handleExport}
           downloadFile={downloadFile}
           setCanvasWithFile={setCanvasWithFile}
+          inspirationExists={!!location.state?.imageUrl}
+          showInspiration={showInspiration}
+          setShowInspiration={setShowInspiration}
+          handleUndo={handleUndo}
+          handleRedo={handleRedo}
         />
 
         <div
@@ -581,13 +618,18 @@ const Canvas = () => {
               };
             }}
           >
+            {showInspiration && location.state?.imageUrl && (
+              <InspirationLayer
+                inspiration={location.state}
+                canvasWidth={canvasWidth}
+              />
+            )}
             <Layer>
               <Rect
                 x={0}
                 y={0}
                 width={2000}
                 height={1200}
-                fill="white"
                 listening={false}
               ></Rect>
               {lines &&
@@ -662,7 +704,11 @@ const Canvas = () => {
                   opacity={currentRect.opacity}
                 />
               )}
-              <BrushStrokes lines={lines} liveLine={liveLine} />
+              <BrushStrokes
+                lines={lines}
+                liveLine={liveLine}
+                inspiration={location.state}
+              />
             </Layer>
           </Stage>
         </div>

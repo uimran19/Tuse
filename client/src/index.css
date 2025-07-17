@@ -103,10 +103,9 @@ button.undoRedoButtons:active {
   color: black;
 }
 
-.paletteLabels{
+.paletteLabels {
   color: black;
 }
-
 
 @media (prefers-color-scheme: light) {
   :root {
