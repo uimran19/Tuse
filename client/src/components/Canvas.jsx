@@ -702,7 +702,6 @@ const Canvas = () => {
                   stroke={currentRect.stroke}
                   strokeWidth={currentRect.strokeWidth}
                   opacity={currentRect.opacity}
-                  // dash={[4, 2]}
                 />
               )}
               <BrushStrokes
@@ -719,7 +718,7 @@ const Canvas = () => {
     return (
       <>
         <div>Room not found!</div>
-        <Link to={`/home`}>Return home</Link>;
+        <Link to={`/`}>Return home</Link>;
       </>
     );
 };

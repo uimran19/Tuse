@@ -160,6 +160,7 @@ const StyledDropdown = styled.div`
     & input {
       grid-column: 2 / span 1;
     }
+    
 
     & span {
       grid-column: 3 / span 1;
@@ -189,10 +190,17 @@ function Toolbar({
   const [currentColour, setCurrentColour] = useState("#000000");
 
   function handleToolClick(e) {
-    if (e.target.value === "pencil") setColour("grey");
+    if (e.target.value === "pencil") {
+        setColour("grey");
+        setCurrentColour("grey")
+    }
     else if (e.target.value === "pen") {
       setColour("#000000");
       setCurrentColour("#000000");
+    }
+    else if (e.target.value === "rectangle") {
+        setColour("#000000");
+        setCurrentColour("#000000")
     }
     setTool(e.currentTarget.value);
   }
@@ -207,7 +215,7 @@ function Toolbar({
 
   function handleColorChange(e) {
     setCurrentColour(e.target.value);
-    if (tool === "pen" || tool === "brush") setColour(e.target.value);
+    if (tool === "pen" || tool === "brush" || tool === "rectangle") setColour(e.target.value);
   }
 
   function handleStrokeWidth(e) {

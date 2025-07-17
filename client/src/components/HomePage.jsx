@@ -36,7 +36,7 @@ export default function HomePage() {
       <Background />
       <StyledHomePage>
         <TileRow>
-          <Tile url="" label="Jump back in" alt="2000-01-01" />
+          {/* <Tile url="" label="Jump back in" alt="2000-01-01" /> */}
           <NewCanvasTile />
           <InspirationTile
             date={last7Dates[0][1]}
