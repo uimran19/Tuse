@@ -23,7 +23,6 @@ io.on("connection", (socket) => {
   console.log("a user connected");
 
   socket.on("createRoomRequest", (roomId) => {
-    console.log(roomId);
     if (!roomExists(roomId)) {
       knownRooms.push(roomId);
     }
@@ -56,7 +55,6 @@ io.on("connection", (socket) => {
 
   socket.on("get-initial-canvas", (roomId) => {
     socket.emit("initial-canvas", knownCanvases[roomId]);
-    console.log(knownCanvases);
   });
 
   liveUsers.add(socket.id);
@@ -114,8 +112,6 @@ io.on("connection", (socket) => {
         }
       }
     }
-
-    console.log(data);
 
     io.emit("initial-canvas", knownCanvases[data.canvas_id]);
   });
