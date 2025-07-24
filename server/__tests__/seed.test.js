@@ -1,5 +1,3 @@
-jest.setTimeout(30000);
-
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 
