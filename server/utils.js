@@ -16,13 +16,4 @@ function getNext365Dates() {
   return dates;
 }
 
-function getTodaysDate() {
-  const currentTimestamp = Date.now();
-  const date = new Date(currentTimestamp);
-  const formattedDate = `${date.getFullYear()}-${
-    date.getMonth() + 1
-  }-${date.getDate()}`;
-  return formattedDate;
-}
-
-module.exports = { getNext365Dates, getTodaysDate };
+module.exports = { getNext365Dates };

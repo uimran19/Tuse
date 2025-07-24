@@ -1,4 +1,4 @@
-// NB: IF pageNumber IN THE API CALL IS SET TO ABOVE 10 (i.e. seed() is invoked with a number greater than 10), THE API WILL RETURN UNDEFINED DUE TO ASKING FOR TOO MANY RESULTS. ERROR HANDLING FOR THIS HAS NOT YET BEEN IMPLEMENTED
+// NB: The API query will return undefined if number of pages exceeds 10 - error handling has been incorporated for this. The current database has been seeded with pages 1-10 (as of July 2025). The database will require reseeding in July 2026.
 
 const db = require("../connection");
 const { createTable } = require("./manageTables");
@@ -39,7 +39,9 @@ function getImageIds(pageNumber) {
         return { artwork_id: id, image_id };
       });
     })
-    .catch((err) => {});
+    .catch((err) => {
+      console.log(err)
+    });
 }
 
 function insertArtworks(artworks) {
@@ -49,7 +51,6 @@ function insertArtworks(artworks) {
 
   const artworksInsertString = format(
     `INSERT INTO artworks(artwork_id, image_id) VALUES %L;`,
-    // SELECT pg_size_pretty(pg_database_size('inspiration_station_test'));`,
     formattedArtworks
   );
 
