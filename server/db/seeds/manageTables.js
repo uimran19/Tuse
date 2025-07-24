@@ -1,10 +1,5 @@
 const db = require("../connection");
 
-function dropTable() {
-  return db.query(`
-        `);
-}
-
 function createTable() {
   return db.query(`
         DROP TABLE IF EXISTS artworks;
@@ -16,4 +11,4 @@ function createTable() {
         );`);
 }
 
-module.exports = { dropTable, createTable };
+module.exports = { createTable };
